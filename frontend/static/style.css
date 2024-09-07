@@ -1,0 +1,16 @@
+
+body {
+  background-color: #36454f;
+  color: #f8e5e5;
+}
+
+#caloriesPlotContainer {
+    display: flex;
+    align-items: center;
+    height: 500px; /* Set a fixed height for the entire plot and dropdown */
+}
+
+#caloriesPlot {
+    width: 80%;
+    height: 100%; /* Ensure the plot takes the full height */
+}

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8" />
+	<!-- Load plotly.js into the DOM -->
+	<script src='https://cdn.plot.ly/plotly-2.34.0.min.js'></script>
+    <script 
+      src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.6.20/fetch.min.js" 
+      integrity="sha512-5vzl35V/cPSXliPbZtxHY0Q6cfYFd2Qld79+d7wLPbOxnKeCHH/LmlMD8aYl0ZN5VZPFM2FnKiAjoNJ2k3vrEg==" 
+      crossorigin="anonymous" 
+      referrerpolicy="no-referrer"
+      type="module"
+    ></script>
+
+    <link rel="stylesheet" type="text/css" href="static/style.css">
+    <link rel="stylesheet" type="text/css" href="static/dropdown.css">
+
+</head>
+
+<body>
+    <h1>Data Visualizations</h1>
+    <div>
+        <h2>Activity Data</h2>
+        <div id="activityPlot"></div>
+    </div>
+    <div>
+        <h2>Calorie Data</h2>
+        <div id="caloriesPlotContainer">
+            <!--<select id="caloriesSelector">
+                <option value="calories">Total Calories</option>
+                <option value="proteins">Protein</option>
+                <option value="carbs">Carbs</option>
+                <option value="fat">Fat</option>
+                <option value="sugar">sugar</option>
+                <option value="starch">Starch</option>
+                <option value="fiber">Fiber</option>
+                <option value="active_time">Active time</option>
+                <option value="steps">Steps</option>
+                <option value="kilocalories">KiloCalories</option>
+                <option value="inactivity_stamps">Inactivity stamps</option>
+                <option value="sleep_time">Sleep time</option>
+            </select>-->
+            <div id="customSelectorContainer">
+                <div id="customSelector" onclick="toggleDropdown(event)">
+                    <span id="currentSelection">Calories</span>
+                </div>
+                <ul id="customDropdown" class="hidden">
+                    <li onclick="changeYaxis(event, 'calories eaten')">Calories eaten</li>
+                    <li onclick="changeYaxis(event, 'calories burned')">Calories burned</li>
+                    <li onclick="changeYaxis(event, 'proteins')">Proteins</li>
+                </ul>
+            </div>
+            <div id="caloriesPlot"></div>
+        </div>
+        <div id="caloriesPlot"></div>
+    </div>
+</body>
+
+
+<script>
+
+let caloriesData = null;
+
+function toggleDropdown(event) {
+    const dropdown = document.getElementById('customDropdown');
+    if (!dropdown) {
+        console.error("Dropdown element not found!");
+        return;
+    }
+
+    dropdown.classList.toggle('hidden');
+    dropdown.classList.toggle('visible');
+    console.log("New dropdown state:", dropdown.classList);
+}
+
+function changeYaxis(event, yAxis) {
+    // Logic to update the plot with the selected yAxis
+    console.log("Selected yAxis: ", yAxis);
+    plotCaloriesData(yAxis);
+    const currentSelection = document.getElementById('currentSelection');
+    currentSelection.textContent = yAxis;
+    toggleDropdown(event);  // Hide dropdown after selection
+}
+
+async function getData(url) {
+  try {
+    const options = { method: 'GET' };
+    const response = await fetch(url, options);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+async function plotActivityData() {
+    const data = await getData("http://127.0.0.1:8080/activity");
+    if (data) {
+        const trace = {
+            x: data.dates,
+            y: data.steps,
+            mode: 'lines+markers',
+            type: 'scatter',
+            name: 'Steps'
+        };
+
+        const layout = {
+            title: 'Daily Steps Over Time',
+            xaxis: { title: 'Date', type: 'date' },
+            yaxis: { title: 'Steps' }
+        };
+
+        Plotly.newPlot('activityPlot', [trace], layout);
+    }
+}
+
+async function plotCaloriesData(yAxisVariable) {
+    //const data = await getData("http://127.0.0.1:8080/calories");
+    if (!caloriesData) {
+        console.error("No data");
+        return;
+    }
+    const yValues = caloriesData[yAxisVariable];
+    const averageValue = yValues.reduce((sum, value) => sum + value, 0) / yValues.length;
+        
+    const traceData = {
+        x: caloriesData.date,
+        y: yValues,
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1)
+    };
+
+    const traceData2 = {
+        x: caloriesData.date,
+        y: caloriesData['calories burned'],
+        mode: 'lines+markers',
+        type: 'scatter',
+        name: 'Calories burned'
+    };
+
+    const traceAverage = {
+        x: [caloriesData.date[0], caloriesData.date[caloriesData.date.length - 1]],
+        y: [averageValue, averageValue],
+        mode: 'lines',
+        line: { color: 'red', dash: 'dashdot' },
+        name: 'Average'
+    };
+
+    const layout = {
+        //title: `Daily ${yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1)} Over Time`,
+        title: `Daily ${yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1)} Over Time (Average: ${averageValue.toFixed(2)})`,
+        xaxis: { title: 'Date', type: 'date' },
+        yaxis: { title: yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1) },
+        plot_bgcolor:"black",
+        paper_bgcolor:"#FFF3",
+    };
+
+    Plotly.newPlot('caloriesPlot', [traceData, traceData2, traceAverage], layout);
+}
+
+async function getCaloriesData() {
+    caloriesData = await getData("http://127.0.0.1:8080/calories");
+    plotCaloriesData('calories eaten');
+}
+
+function setupEventListeners() {
+    const customSelector = document.getElementById('customSelector');
+    if (customSelector) {
+        customSelector.addEventListener('click', toggleDropdown);
+        console.log('Event listener added to customSelector');
+    } else {
+        console.error("Custom selector element not found!");
+    }
+}
+
+async function initialize() {
+    //await plotActivityData();
+    //await plotCaloriesData('calories eaten');
+    await getCaloriesData();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded and parsed');
+    initialize();
+    //setupEventListeners();
+});
+</script>
+
+</html>

@@ -1,0 +1,50 @@
+#customSelectorContainer {
+    position: relative;
+    height: 100%;
+}
+
+#customSelector {
+    writing-mode: vertical-rl;
+    height: 100%; /* Adjust this to make the dropdown open from the middle */
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    padding: 5px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+#customDropdown {
+    position: absolute;
+    top: 50%; /* Starts from the middle of the selector */
+    left: 100%; /* Appears to the right of the selector */
+    transform: translateY(-50%); /* Center dropdown vertically */
+    width: 150px; /* Set a width for testing */
+    height: auto; /* Adjust height as needed */
+    border: 1px solid #ccc;
+    background-color: white;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    z-index: 1000; /* Ensure it appears above other content */
+}
+
+#customDropdown li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+#customDropdown li:hover {
+    background-color: #f0f0f0;
+}
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
+}
