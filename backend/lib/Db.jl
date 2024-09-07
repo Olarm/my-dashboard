@@ -38,6 +38,7 @@ end
 function get_enviro()
     conn = get_conn()
     query = "SELECT * FROM enviro_plus ORDER BY timestamp;"
+    close(conn)
     return execute(conn, query) |> DataFrame
 end
 
@@ -47,6 +48,8 @@ function get_nasalspray()
     query = "SELECT * FROM nasalspray ORDER BY timestamp;"
     #return execute(conn, query) |> DataFrame
     data = execute(conn, query)
+    close(conn)
+    return data
 end
 
 
@@ -62,6 +65,7 @@ function get_sleep_data()
     query = """SELECT * FROM sleep_data ORDER BY date;"""
     df = execute(conn, query) |> DataFrame
     df.date = Date.(df.date)
+    close(conn)
     return df
 end
 
@@ -72,6 +76,7 @@ function get_sleep()
     temp_df = execute(conn, query) |> DataFrame
     df = JSON3.read.(temp_df.data) |> DataFrame
     df.date = Date.(df.date)
+    close(conn)
     return df
 end
 
@@ -80,6 +85,7 @@ function get_food()
     query = "select f.*, c.amount, c.dateeaten from consumed c left join food f on f.id = c.food order by c.dateeaten;"
     df = execute(conn, query) |> DataFrame
     df = coalesce.(df, 0.0)
+    close(conn)
     return df
 end
 
@@ -89,7 +95,8 @@ function get_total_calories()
     conn = get_conn()
     query = """select sum(c.amount*f.calories/100) from consumed c left join food f on f.id = c.food;"""
     temp_df = execute(conn, query) |> DataFrame
-    value = temp_df.sum[1]
+    close(conn)
+    return temp_df.sum[1]
 end
 
 function get_per_day()
@@ -110,6 +117,7 @@ function get_per_day()
         GROUP BY date ORDER BY date DESC;
     """
     df = execute(conn, query) |> DataFrame
+    close(conn)
     df = coalesce.(df, 0.0)
     return df
 end
@@ -133,6 +141,7 @@ function get_per_meal()
         GROUP BY dateeaten ORDER BY c.dateeaten DESC;
     """
     df = execute(conn, query) |> DataFrame
+    close(conn)
     df = coalesce.(df, 0.0)
     return df
 
@@ -151,6 +160,7 @@ function get_latlon()
 	LIMIT 5
     """
     result = execute(conn, query)
+    close(conn)
     for row in result
         ts = row[1]
         json_obj = JSON3.read(String(row[2]))
