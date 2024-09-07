@@ -1,7 +1,9 @@
 
+
 body {
-  background-color: #36454f;
-  color: #f8e5e5;
+  background-color: #222831;
+  color: #EEEEEE;
+  font-family: 'Courier New', monospace; 
 }
 
 #caloriesPlotContainer {

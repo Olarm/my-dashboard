@@ -23,8 +23,8 @@
     transform: translateY(-50%); /* Center dropdown vertically */
     width: 150px; /* Set a width for testing */
     height: auto; /* Adjust height as needed */
-    border: 1px solid #ccc;
-    background-color: white;
+    border: 1px solid #EEEEEE;
+    background-color: #222831;
     list-style-type: none;
     padding: 0;
     margin: 0;
