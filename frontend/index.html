@@ -45,7 +45,9 @@
       </div>
       <div id="caloriesPlot"></div>
     </div>
-    <div id="caloriesPlot"></div>
+  </div>
+  <div>
+      <div id="macroNutrientsPlot"></div>
   </div>
 </body>
 
@@ -57,17 +59,12 @@ let selectedVariables = ["calories in", "calories out"];
 
 function updateSelected(variable, checkbox) {
     if (checkbox.checked) {
-        // Add the variable to the list if checked
         if (!selectedVariables.includes(variable)) {
             selectedVariables.push(variable);
         }
     } else {
-        // Remove the variable from the list if unchecked
         selectedVariables = selectedVariables.filter(item => item !== variable);
     }
-    
-    console.log("Selected Variables:", selectedVariables);
-    
     plotCaloriesData(); // Example call
 }
 
@@ -128,15 +125,13 @@ async function plotActivityData() {
     }
 }
 
-async function plotCaloriesData() {
+function plotCaloriesData() {
     if (!caloriesData) {
         console.error("No data");
         return;
     }
 
     let traces = [];
-
-    // Iterate through selected variables and create a trace for each
     selectedVariables.forEach(variable => {
         const yValues = caloriesData[variable];
         const averageValue = yValues.reduce((sum, value) => sum + value, 0) / yValues.length;
@@ -162,10 +157,7 @@ async function plotCaloriesData() {
     });
 
     const layout = {
-        //title: `Daily ${yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1)} Over Time (Average: ${averageValue.toFixed(2)})`,
-        //title: `Daily ${yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1)})`,
         xaxis: { title: 'Date', type: 'date' },
-        //yaxis: { title: yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1) },
         plot_bgcolor:"31363F",
         paper_bgcolor:"#222831",
         font: {
@@ -178,9 +170,39 @@ async function plotCaloriesData() {
     Plotly.newPlot('caloriesPlot', traces, layout, options);
 }
 
+function plotMacroNutrients() {
+    const macroNutrients = ["carbs", "proteins", "fat"];
+    var values = [];
+    macroNutrients.forEach(variable => {
+        const yValues = caloriesData[variable];
+        const averageValue = yValues.reduce((sum, value) => sum + value, 0) / yValues.length;
+        values.push(averageValue);
+    })
+
+    var data = [{
+        values: values,
+        labels: macroNutrients,
+        type: 'pie'
+    }];
+
+    var layout = {
+        height: 400,
+        width: 500,
+        plot_bgcolor:"31363F",
+        paper_bgcolor:"#222831",
+        font: {
+          color: '#EEEEEE',
+          family:'Courier New, monospace'
+        },
+    };
+
+    Plotly.newPlot('macroNutrientsPlot', data, layout);
+}
+
 async function getCaloriesData() {
     caloriesData = await getData("http://127.0.0.1:8080/calories");
-    plotCaloriesData('calories in');
+    plotCaloriesData();
+    plotMacroNutrients()
 }
 
 //function setupEventListeners() {
