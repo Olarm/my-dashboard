@@ -18,9 +18,9 @@ end
 
 function calories_in_out()
     food = Db.get_per_day()
-    food[!, "calories eaten"] = food.calories
+    food[!, "calories in"] = food.calories
     activity = Db.get_activity()
-    activity[!, "calories burned"] = activity.kilocalories
+    activity[!, "calories out"] = activity.kilocalories
     df = innerjoin(food, activity, on=:date)
     select!(df, Not([:calories, :kilocalories]))
     return df

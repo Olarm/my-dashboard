@@ -45,8 +45,8 @@
                     <span id="currentSelection">Calories</span>
                 </div>
                 <ul id="customDropdown" class="hidden">
-                    <li onclick="changeYaxis(event, 'calories eaten')">Calories eaten</li>
-                    <li onclick="changeYaxis(event, 'calories burned')">Calories burned</li>
+                    <li onclick="changeYaxis(event, 'calories in')">Calories in</li>
+                    <li onclick="changeYaxis(event, 'calories out')">Calories out</li>
                     <li onclick="changeYaxis(event, 'proteins')">Proteins</li>
                 </ul>
             </div>
@@ -121,7 +121,6 @@ async function plotActivityData() {
 }
 
 async function plotCaloriesData(yAxisVariable) {
-    //const data = await getData("http://127.0.0.1:8080/calories");
     if (!caloriesData) {
         console.error("No data");
         return;
@@ -139,10 +138,10 @@ async function plotCaloriesData(yAxisVariable) {
 
     const traceData2 = {
         x: caloriesData.date,
-        y: caloriesData['calories burned'],
+        y: caloriesData['calories out'],
         mode: 'lines+markers',
         type: 'scatter',
-        name: 'Calories burned'
+        name: 'Calories out'
     };
 
     const traceAverage = {
@@ -171,7 +170,7 @@ async function plotCaloriesData(yAxisVariable) {
 
 async function getCaloriesData() {
     caloriesData = await getData("http://127.0.0.1:8080/calories");
-    plotCaloriesData('calories eaten');
+    plotCaloriesData('calories in');
 }
 
 function setupEventListeners() {
