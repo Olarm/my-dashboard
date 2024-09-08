@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8" />
 	<!-- Load plotly.js into the DOM -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-scale-chromatic@1.5.0/dist/d3-scale-chromatic.min.js"></script>
 	<script src='https://cdn.plot.ly/plotly-2.34.0.min.js'></script>
     <script 
       src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.6.20/fetch.min.js" 
@@ -130,17 +132,25 @@ function plotCaloriesData() {
         console.error("No data");
         return;
     }
+    
+    const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
     let traces = [];
-    selectedVariables.forEach(variable => {
+    selectedVariables.forEach((variable, index) => {
         const yValues = caloriesData[variable];
         const averageValue = yValues.reduce((sum, value) => sum + value, 0) / yValues.length;
         
+        const color = colorScale(index); 
+
         const trace = {
             x: caloriesData.date,
             y: yValues,
             mode: 'lines+markers',
-            type: 'scatter',
+            //type: 'scatter',
+              line: {
+                color: color,
+                width: 1
+            },
             name: variable.charAt(0).toUpperCase() + variable.slice(1)
         };
 
@@ -148,7 +158,7 @@ function plotCaloriesData() {
             x: [caloriesData.date[0], caloriesData.date[caloriesData.date.length - 1]],
             y: [averageValue, averageValue],
             mode: 'lines',
-            line: { color: 'red', dash: 'dashdot' },
+            line: { color: color, dash: 'dashdot' },
             name: `Average ${variable.charAt(0).toUpperCase() + variable.slice(1)}: ${averageValue.toFixed(2)}`
         };
 
@@ -198,6 +208,7 @@ function plotMacroNutrients() {
 
     Plotly.newPlot('macroNutrientsPlot', data, layout);
 }
+
 
 async function getCaloriesData() {
     caloriesData = await getData("http://127.0.0.1:8080/calories");
