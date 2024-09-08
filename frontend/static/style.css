@@ -1,7 +1,13 @@
 
+:root {
+  --c1: #222831;
+  --c2: #31363F;
+  --c3: #76ABAE;
+  --c4: #EEEEEE;
+}
 
 body {
-  background-color: #222831;
+  background-color: var(--c1);
   color: #EEEEEE;
   font-family: 'Courier New', monospace; 
 }
@@ -15,4 +21,39 @@ body {
 #caloriesPlot {
     width: 80%;
     height: 100%; /* Ensure the plot takes the full height */
+}
+
+
+/* Boxes */
+
+#colorLegend {
+    display: flex; /* Align items horizontally */
+    justify-content: space-around; /* Distribute space between items */
+    margin-bottom: 20px; /* Space between the legend and the plot */
+}
+
+.color-box {
+    position: relative; /* Allows absolute positioning of text inside */
+    display: flex; /* Center content horizontally and vertically */
+    align-items: center;
+    justify-content: center;
+    width: 120px; /* Adjust the width as needed */
+    height: 80px; /* Adjust the height as needed */
+    margin: 0 10px; /* Space between boxes */
+    font-family: 'Courier New', monospace; /* Font family */
+    border: 1px solid #ccc; /* Optional border for better visibility */
+    background-color: var(--c3);
+    color: var(--c1);
+}
+
+.text-top-left {
+    position: absolute;
+    top: 5px; /* Distance from the top */
+    left: 5px; /* Distance from the left */
+    font-size: 12px; /* Smaller text size */
+}
+
+.value-center {
+    font-size: 16px; /* Larger text size for value */
+    font-weight: bold; /* Make text bold */
 }
