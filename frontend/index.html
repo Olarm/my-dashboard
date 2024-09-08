@@ -18,48 +18,58 @@
 </head>
 
 <body>
-    <h1>My life in numbers</h1>
-    <div>
-        <h2>Activity Data</h2>
-        <div id="activityPlot"></div>
-    </div>
-    <div>
-        <h2>Calorie Data</h2>
-        <div id="caloriesPlotContainer">
-            <!--<select id="caloriesSelector">
-                <option value="calories">Total Calories</option>
-                <option value="proteins">Protein</option>
-                <option value="carbs">Carbs</option>
-                <option value="fat">Fat</option>
-                <option value="sugar">sugar</option>
-                <option value="starch">Starch</option>
-                <option value="fiber">Fiber</option>
-                <option value="active_time">Active time</option>
-                <option value="steps">Steps</option>
-                <option value="kilocalories">KiloCalories</option>
-                <option value="inactivity_stamps">Inactivity stamps</option>
-                <option value="sleep_time">Sleep time</option>
-            </select>-->
-            <div id="customSelectorContainer">
-                <div id="customSelector" onclick="toggleDropdown(event)">
-                    <span id="currentSelection">Calories</span>
-                </div>
-                <ul id="customDropdown" class="hidden">
-                    <li onclick="changeYaxis(event, 'calories in')">Calories in</li>
-                    <li onclick="changeYaxis(event, 'calories out')">Calories out</li>
-                    <li onclick="changeYaxis(event, 'proteins')">Proteins</li>
-                </ul>
-            </div>
-            <div id="caloriesPlot"></div>
+  <h1>My life in numbers</h1>
+  <div>
+      <div id="activityPlot"></div>
+  </div>
+  <div>
+    <div id="caloriesPlotContainer">
+      <div id="customSelectorContainer">
+        <div id="customSelector" onclick="toggleDropdown(event)">
+          <span id="currentSelection">Calories</span>
         </div>
-        <div id="caloriesPlot"></div>
+        <ul id="customDropdown" class="hidden">
+          <li><input type="checkbox" onchange="updateSelected('calories in', this)" checked>Calories in</li>
+          <li><input type="checkbox" onchange="updateSelected('calories out', this)" checked>Calories out</li>
+          <li><input type="checkbox" onchange="updateSelected('proteins', this)">Proteins</li>
+          <li><input type="checkbox" onchange="updateSelected('carbs', this)">Carbs</li>
+          <li><input type="checkbox" onchange="updateSelected('fat', this)">Fat</li>
+          <li><input type="checkbox" onchange="updateSelected('sugar', this)">Sugar</li>
+          <li><input type="checkbox" onchange="updateSelected('starch', this)">Starch</li>
+          <li><input type="checkbox" onchange="updateSelected('fiber', this)">Fiber</li>
+          <li><input type="checkbox" onchange="updateSelected('active_time', this)">Active time</li>
+          <li><input type="checkbox" onchange="updateSelected('steps', this)">Steps</li>
+          <li><input type="checkbox" onchange="updateSelected('inactivity_stamps', this)">Inactivity stamps</li>
+          <li><input type="checkbox" onchange="updateSelected('sleep_time', this)">Sleep time</li>
+        </ul>
+      </div>
+      <div id="caloriesPlot"></div>
     </div>
+    <div id="caloriesPlot"></div>
+  </div>
 </body>
 
 
 <script>
 
 let caloriesData = null;
+let selectedVariables = ["calories in", "calories out"];
+
+function updateSelected(variable, checkbox) {
+    if (checkbox.checked) {
+        // Add the variable to the list if checked
+        if (!selectedVariables.includes(variable)) {
+            selectedVariables.push(variable);
+        }
+    } else {
+        // Remove the variable from the list if unchecked
+        selectedVariables = selectedVariables.filter(item => item !== variable);
+    }
+    
+    console.log("Selected Variables:", selectedVariables);
+    
+    plotCaloriesData(); // Example call
+}
 
 function toggleDropdown(event) {
     const dropdown = document.getElementById('customDropdown');
@@ -70,13 +80,11 @@ function toggleDropdown(event) {
 
     dropdown.classList.toggle('hidden');
     dropdown.classList.toggle('visible');
-    console.log("New dropdown state:", dropdown.classList);
 }
 
 function changeYaxis(event, yAxis) {
     // Logic to update the plot with the selected yAxis
-    console.log("Selected yAxis: ", yAxis);
-    plotCaloriesData(yAxis);
+    //plotCaloriesData(yAxis);
     const currentSelection = document.getElementById('currentSelection');
     currentSelection.textContent = yAxis;
     toggleDropdown(event);  // Hide dropdown after selection
@@ -120,52 +128,54 @@ async function plotActivityData() {
     }
 }
 
-async function plotCaloriesData(yAxisVariable) {
+async function plotCaloriesData() {
     if (!caloriesData) {
         console.error("No data");
         return;
     }
-    const yValues = caloriesData[yAxisVariable];
-    const averageValue = yValues.reduce((sum, value) => sum + value, 0) / yValues.length;
+
+    let traces = [];
+
+    // Iterate through selected variables and create a trace for each
+    selectedVariables.forEach(variable => {
+        const yValues = caloriesData[variable];
+        const averageValue = yValues.reduce((sum, value) => sum + value, 0) / yValues.length;
         
-    const traceData = {
-        x: caloriesData.date,
-        y: yValues,
-        mode: 'lines+markers',
-        type: 'scatter',
-        name: yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1)
-    };
+        const trace = {
+            x: caloriesData.date,
+            y: yValues,
+            mode: 'lines+markers',
+            type: 'scatter',
+            name: variable.charAt(0).toUpperCase() + variable.slice(1)
+        };
 
-    const traceData2 = {
-        x: caloriesData.date,
-        y: caloriesData['calories out'],
-        mode: 'lines+markers',
-        type: 'scatter',
-        name: 'Calories out'
-    };
+        const traceAverage = {
+            x: [caloriesData.date[0], caloriesData.date[caloriesData.date.length - 1]],
+            y: [averageValue, averageValue],
+            mode: 'lines',
+            line: { color: 'red', dash: 'dashdot' },
+            name: `Average ${variable.charAt(0).toUpperCase() + variable.slice(1)}: ${averageValue.toFixed(2)}`
+        };
 
-    const traceAverage = {
-        x: [caloriesData.date[0], caloriesData.date[caloriesData.date.length - 1]],
-        y: [averageValue, averageValue],
-        mode: 'lines',
-        line: { color: 'red', dash: 'dashdot' },
-        name: 'Average'
-    };
+        traces.push(trace);
+        traces.push(traceAverage);
+    });
 
     const layout = {
-        //title: `Daily ${yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1)} Over Time`,
-        title: `Daily ${yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1)} Over Time (Average: ${averageValue.toFixed(2)})`,
+        //title: `Daily ${yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1)} Over Time (Average: ${averageValue.toFixed(2)})`,
+        //title: `Daily ${yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1)})`,
         xaxis: { title: 'Date', type: 'date' },
-        yaxis: { title: yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1) },
+        //yaxis: { title: yAxisVariable.charAt(0).toUpperCase() + yAxisVariable.slice(1) },
         plot_bgcolor:"31363F",
         paper_bgcolor:"#222831",
         font: {
           color: '#EEEEEE',
           family:'Courier New, monospace'
-      },
+        },
     };
+    const options = {displaylogo: false};
 
-    Plotly.newPlot('caloriesPlot', [traceData, traceData2, traceAverage], layout);
+    Plotly.newPlot('caloriesPlot', traces, layout, options);
 }
 
 async function getCaloriesData() {
@@ -173,26 +183,22 @@ async function getCaloriesData() {
     plotCaloriesData('calories in');
 }
 
-function setupEventListeners() {
-    const customSelector = document.getElementById('customSelector');
-    if (customSelector) {
-        customSelector.addEventListener('click', toggleDropdown);
-        console.log('Event listener added to customSelector');
-    } else {
-        console.error("Custom selector element not found!");
-    }
-}
+//function setupEventListeners() {
+//    const customSelector = document.getElementById('customSelector');
+//    if (customSelector) {
+//        customSelector.addEventListener('click', toggleDropdown);
+//        console.log('Event listener added to customSelector');
+//    } else {
+//        console.error("Custom selector element not found!");
+//    }
+//}
 
 async function initialize() {
-    //await plotActivityData();
-    //await plotCaloriesData('calories eaten');
     await getCaloriesData();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM fully loaded and parsed');
     initialize();
-    //setupEventListeners();
 });
 </script>
 
