@@ -2,9 +2,8 @@ module Food
 
 using DataFrames
 
-include("Db.jl")
 
-import Main.Db
+import ..Db
 
 
 function calories_per_day()

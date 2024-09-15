@@ -1,7 +1,19 @@
 module SleepAnalysis
 export plot_sleep, combine_data, sleep_classes
 using Main.Db
-using DataFrames, PlotlyBase
+using DataFrames, PlotlyBase, Statistics
+
+function correlations()
+    food = Db.get_per_day()
+    disallowmissing!(food)
+    sleep = Db.get_sleep()
+    disallowmissing!(sleep)
+    df = innerjoin(food, sleep, on=:date)
+    select!(df, Not([:date, :polar_user, :id, :device_id, :sleep_start_time, :sleep_end_time]))
+    return df
+    cors = [[cor(a, b) for a in eachcol(df)] for b in eachcol(df)]
+    return cors
+end
 
 
 function combine_data()
@@ -13,6 +25,13 @@ function combine_data()
     df = innerjoin(df_sleep, df_sleep_data, on = :date)
 
     return df
+end
+
+function sleep_means()
+    df_sleep = get_sleep()
+    rem = mean(df.rem_sleep)
+    deep = mean(df.deep_sleep)
+    light = mean(df.light_sleep)
 end
 
 

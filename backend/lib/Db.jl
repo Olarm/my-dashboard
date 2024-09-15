@@ -73,12 +73,13 @@ end
 function get_sleep()
     conn = get_conn()
     query = """SELECT * FROM sleep ORDER BY date"""
-    temp_df = execute(conn, query) |> DataFrame
-    df = JSON3.read.(temp_df.data) |> DataFrame
-    df.date = Date.(df.date)
+    df = execute(conn, query) |> DataFrame
+    #df = JSON3.read.(temp_df.data) |> DataFrame
+    #df.date = Date.(df.date)
     close(conn)
     return df
 end
+
 
 function get_food()
     conn = get_conn()
@@ -90,7 +91,6 @@ function get_food()
 end
 
 
-
 function get_total_calories()
     conn = get_conn()
     query = """select sum(c.amount*f.calories/100) from consumed c left join food f on f.id = c.food;"""
@@ -98,6 +98,7 @@ function get_total_calories()
     close(conn)
     return temp_df.sum[1]
 end
+
 
 function get_per_day()
     conn = get_conn()
@@ -121,6 +122,7 @@ function get_per_day()
     df = coalesce.(df, 0.0)
     return df
 end
+
 
 function get_per_meal()
     conn = get_conn()
@@ -147,6 +149,7 @@ function get_per_meal()
 
 end
 
+
 function get_latlon()
     # olas iphone device_tracker is metadataid 173
     conn = get_conn_ha()
@@ -167,4 +170,56 @@ function get_latlon()
         return json_obj
     end
 end
+
+
+function get_averages()
+    conn = get_conn_ha()
+    query = """
+        SELECT AVG)
+    """
+
+end
+
+
+function get_sleep_hr()
+    conn = get_conn()
+    query = """
+        SELECT 
+        heart_rate.key AS time,
+        heart_rate.value::INT AS heart_rate_value
+        FROM 
+        sleep,
+        LATERAL jsonb_each_text(data->'heart_rate_samples') AS heart_rate;
+    """
+    result = execute(conn, query)
+    timestamps = String[]
+    heart_rates = Int[]
+
+    for row in result
+        push!(timestamps, row[1])  # Add timestamp
+        push!(heart_rates, row[2]) # Add heart rate value
+    end
+
+    json_result = Dict("timestamps" => timestamps, "heart_rates" => heart_rates)
+    json_output = JSON3.write(json_result)
+
+    return json_output
+end
+
+
+function get_sleep_json()
+    conn = get_conn()
+    query = """
+        SELECT data FROM sleep;
+    """
+    result = execute(conn, query)
+    nights = []
+    for row in result
+        json_data_str = row[1]
+        json_data = JSON3.read(json_data_str)
+        push!(nights, json_data)
+    end
+    return nights
+end
+
 end

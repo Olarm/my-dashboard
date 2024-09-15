@@ -69,6 +69,7 @@ function get_activity(req)
 end
 
 function get_calories(req)
+    @info "getting data"
     df = Food.calories_in_out()
     data = Tables.columntable(df)
     headers = Dict(
