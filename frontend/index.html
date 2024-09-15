@@ -39,8 +39,13 @@
     </div>
 </div>
   </div>
-  <div>
+  <div></div>
+    <div id="plotControls">
+        <button onclick="toggleMarkers()">Toggle Markers</button>
+        <button onclick="toggleLines()">Toggle Lines</button>
+      </div>
     <div id="caloriesPlotContainer">
+
       <div id="customSelectorContainer">
         <div id="customSelector" onclick="toggleDropdown(event)">
           <span id="currentSelection">Calories</span>
@@ -73,6 +78,19 @@
 
 let caloriesData = null;
 let selectedVariables = ["calories in", "calories out"];
+
+let showMarkers = true;
+let showLines = true;
+
+function toggleMarkers() {
+    showMarkers = !showMarkers;
+    plotCaloriesData();  // Redraw the plot with updated markers
+}
+
+function toggleLines() {
+    showLines = !showLines;
+    plotCaloriesData();  // Redraw the plot with updated lines
+}
 
 function updateSelected(variable, checkbox) {
     if (checkbox.checked) {
@@ -151,6 +169,8 @@ function plotCaloriesData() {
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
     let traces = [];
+    let traceIndices = [];
+
     selectedVariables.forEach((variable, index) => {
         const yValues = caloriesData[variable];
         const averageValue = yValues.reduce((sum, value) => sum + value, 0) / yValues.length;
@@ -161,10 +181,12 @@ function plotCaloriesData() {
             x: caloriesData.date,
             y: yValues,
             mode: 'lines+markers',
-            //type: 'scatter',
               line: {
                 color: color,
                 width: 1
+            },
+            marker: {
+                color: color
             },
             name: variable.charAt(0).toUpperCase() + variable.slice(1)
         };
@@ -178,10 +200,11 @@ function plotCaloriesData() {
         };
 
         traces.push(trace);
+        traceIndices.push(traces.length - 1);
         traces.push(traceAverage);
     });
 
-    const layout = {
+    var layout = {
         xaxis: { title: 'Date', type: 'date' },
         plot_bgcolor:"31363F",
         paper_bgcolor:"#222831",
@@ -189,6 +212,31 @@ function plotCaloriesData() {
           color: '#EEEEEE',
           family:'Courier New, monospace'
         },
+        updatemenus: [{
+            buttons: [
+                {
+                    method: 'restyle',
+                    args: ['mode', 'lines+markers', traceIndices],
+                    label: 'Lines + Markers'
+                },
+                {
+                    method: 'restyle',
+                    args: ['mode', 'lines', traceIndices],
+                    label: 'Lines Only'
+                },
+                {
+                    method: 'restyle',
+                    args: ['mode', 'markers', traceIndices],
+                    label: 'Markers Only'
+                }
+            ],
+            direction: 'down',
+            showactive: true,
+            x: 0.1,
+            xanchor: 'left',
+            y: 1.15,
+            yanchor: 'top'
+        }]
     };
     const options = {displaylogo: false};
 
