@@ -15,7 +15,7 @@ body {
 #caloriesPlotContainer {
     display: flex;
     align-items: center;
-    height: 500px; /* Set a fixed height for the entire plot and dropdown */
+    height: 600px; /* Set a fixed height for the entire plot and dropdown */
 }
 
 #caloriesPlot {
@@ -41,7 +41,7 @@ body {
     height: 80px; /* Adjust the height as needed */
     margin: 0 10px; /* Space between boxes */
     font-family: 'Courier New', monospace; /* Font family */
-    border: 1px solid #ccc; /* Optional border for better visibility */
+    border: 0px solid #ccc; /* Optional border for better visibility */
     background-color: var(--c3);
     color: var(--c1);
 }
