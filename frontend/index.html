@@ -24,27 +24,24 @@
       <div id="activityPlot"></div>
   </div>
   <div id="colorLegend">
-     <div id="colorLegend">
-    <div class="color-box"">
-        <div class="text-top-left">Calories in</div>
-        <div class="value-center">100</div>
-    </div>
-    <div class="color-box"">
-        <div class="text-top-left">Calories out</div>
-        <div class="value-center">✔</div>
-    </div>
-    <div class="color-box"">
-        <div class="text-top-left">Protein</div>
-        <div class="value-center">✔</div>
-    </div>
-</div>
-  </div>
-  <div></div>
-    <div id="plotControls">
-        <button onclick="toggleMarkers()">Toggle Markers</button>
-        <button onclick="toggleLines()">Toggle Lines</button>
+      <div class="color-box"">
+          <div class="text-top-left">Calories in</div>
+          <div class="value-center">100</div>
       </div>
-    <div id="caloriesPlotContainer">
+      <div class="color-box"">
+          <div class="text-top-left">Calories out</div>
+          <div class="value-center">✔</div>
+      </div>
+      <div class="color-box"">
+          <div class="text-top-left">Protein</div>
+          <div class="value-center">✔</div>
+      </div>
+  </div>
+    <div id="caloriesPlotContainer" style="position: relative;">
+        
+      <div id="plotTypeButtonContainer">
+      <div id="plotTypeButton" class="plot-type-button">Toggle Plot Mode</div>
+      </div>
 
       <div id="customSelectorContainer">
         <div id="customSelector" onclick="toggleDropdown(event)">
@@ -78,19 +75,6 @@
 
 let caloriesData = null;
 let selectedVariables = ["calories in", "calories out"];
-
-let showMarkers = true;
-let showLines = true;
-
-function toggleMarkers() {
-    showMarkers = !showMarkers;
-    plotCaloriesData();  // Redraw the plot with updated markers
-}
-
-function toggleLines() {
-    showLines = !showLines;
-    plotCaloriesData();  // Redraw the plot with updated lines
-}
 
 function updateSelected(variable, checkbox) {
     if (checkbox.checked) {
@@ -209,7 +193,7 @@ function plotCaloriesData() {
         plot_bgcolor:"31363F",
         paper_bgcolor:"#222831",
         font: {
-          color: '#EEEEEE',
+          color: '#CCCCCC',
           family:'Courier New, monospace'
         },
         updatemenus: [{
@@ -227,7 +211,8 @@ function plotCaloriesData() {
                 {
                     method: 'restyle',
                     args: ['mode', 'markers', traceIndices],
-                    label: 'Markers Only'
+                    label: 'Markers Only',
+                    bgcolor: '#BBBBBB'
                 }
             ],
             direction: 'down',
@@ -235,7 +220,8 @@ function plotCaloriesData() {
             x: 0.1,
             xanchor: 'left',
             y: 1.15,
-            yanchor: 'top'
+            yanchor: 'top',
+            activebgcolor: '#CCCCCC'
         }]
     };
     const options = {displaylogo: false};
