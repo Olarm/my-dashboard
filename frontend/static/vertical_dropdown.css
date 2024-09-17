@@ -1,9 +1,9 @@
-#customSelectorContainer {
+#verticalSelectorContainer {
     position: relative;
     height: 80%;
 }
 
-#customSelector {
+#verticalSelector {
     writing-mode: vertical-rl;
     height: 100%; /* Adjust this to make the dropdown open from the middle */
     margin-right: 10px;
@@ -16,7 +16,12 @@
     cursor: pointer;
 }
 
-#customDropdown {
+#verticalSelector:hover {
+    background-color: var(--c4);
+    color: var(--c1);
+}
+
+#verticalDropdown {
     position: absolute;
     top: 50%; /* Starts from the middle of the selector */
     left: 100%; /* Appears to the right of the selector */
@@ -31,13 +36,13 @@
     z-index: 1000; /* Ensure it appears above other content */
 }
 
-#customDropdown li {
+#verticalDropdown li {
     padding: 10px;
     cursor: pointer;
     border-bottom: 1px solid #eee;
 }
 
-#customDropdown li:hover {
+#verticalDropdown li:hover {
     background-color: #f0f0f0;
 }
 
