@@ -1,0 +1,52 @@
+#horizontalSelectorContainer {
+    position: absolute;
+    width: 100%;
+    bottom: 0; /* Positioned at the bottom of the container */
+    left: 0;
+    text-align: center; /* Center the selector horizontally */
+    margin-top: 20px; /* Add some space between the plot and the dropdown */
+}
+
+#horizontalSelector {
+    height: 100%; 
+    width: 70%;
+    border: 1px solid var(--c4);
+    padding: 5px;
+    text-align: center;
+    display: inline-block;
+    cursor: pointer;
+    margin: 0 auto;
+}
+
+#horizontalDropdown {
+    position: absolute;
+    left: 50%; /* Center it horizontally */
+    top: 100%; /* Appear below the selector */
+    transform: translateX(-50%); /* Center dropdown horizontally */
+    width: auto; /* Set width to auto or a fixed value */
+    background-color: #222831;
+    border: 1px solid #EEEEEE;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    z-index: 1000; /* Ensure it appears above other content */
+}
+
+#horizontalDropdown li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    display: inline-block; /* Makes list items horizontal */
+}
+
+#horizontalDropdown li:hover {
+    background-color: #f0f0f0;
+}
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
+}

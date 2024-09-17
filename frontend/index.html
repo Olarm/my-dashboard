@@ -15,7 +15,9 @@
     ></script>
 
     <link rel="stylesheet" type="text/css" href="static/style.css">
-    <link rel="stylesheet" type="text/css" href="static/dropdown.css">
+    <link rel="stylesheet" type="text/css" href="static/vertical_dropdown.css">
+    <link rel="stylesheet" type="text/css" href="static/horizontal_dropdown.css">
+    <link rel="stylesheet" type="text/css" href="static/tabs.css">
 
 </head>
 
@@ -37,62 +39,77 @@
           <div class="value-center">✔</div>
       </div>
   </div>
-    <div id="caloriesPlotContainer" style="position: relative;">
-        
-      <div id="plotTypeButtonContainer">
-      <div id="plotTypeButton" class="plot-type-button">Toggle Plot Mode</div>
-      </div>
+    <div class="tabs"></div>
+        <!-- Radio buttons for tab toggling -->
+        <input type="radio" id="tab1" name="tabs" checked>
+        <label for="tab1" class="tab-label">Timeseries</label>
 
-      <div id="verticalSelectorContainer">
-        <div id="customSelector" onclick="toggleDropdown(event)">
-          <span id="currentSelection">Calories in</span>
-        </div>
-        <ul id="customDropdown" class="hidden">
-          <li><input type="checkbox" onchange="updateSelected('calories in', this)" checked>Calories in</li>
-          <li><input type="checkbox" onchange="updateSelected('calories out', this)" checked>Calories out</li>
-          <li><input type="checkbox" onchange="updateSelected('proteins', this)">Proteins</li>
-          <li><input type="checkbox" onchange="updateSelected('carbs', this)">Carbs</li>
-          <li><input type="checkbox" onchange="updateSelected('fat', this)">Fat</li>
-          <li><input type="checkbox" onchange="updateSelected('sugar', this)">Sugar</li>
-          <li><input type="checkbox" onchange="updateSelected('starch', this)">Starch</li>
-          <li><input type="checkbox" onchange="updateSelected('fiber', this)">Fiber</li>
-          <li><input type="checkbox" onchange="updateSelected('active_time', this)">Active time</li>
-          <li><input type="checkbox" onchange="updateSelected('steps', this)">Steps</li>
-          <li><input type="checkbox" onchange="updateSelected('inactivity_stamps', this)">Inactivity stamps</li>
-          <li><input type="checkbox" onchange="updateSelected('sleep_time', this)">Sleep time</li>
-        </ul>
+        <input type="radio" id="tab2" name="tabs">
+        <label for="tab2" class="tab-label">Tab 2</label>
+    </div>
+
+    <!-- Tab contents -->
+    <div class="tab-content content1">
+        <h2>Content for Tab 1</h2>
+        <p>This is some content in Tab 1.</p>
+        <!-- Add more content here -->
+  <div id="caloriesPlotContainer" style="position: relative;">
+      
+    <div id="plotTypeButtonContainer">
+      <div id="plotTypeButton" class="plot-type-button">Toggle Plot Mode</div>
+    </div>
+
+    <div id="verticalSelectorContainer">
+      <div id="verticalSelector" onclick="toggleYDropdown(event)">
+        <span id="currentYSelection">Calories in</span>
       </div>
-      <div id="caloriesPlot"></div>
+      <ul id="verticalDropdown" class="hidden">
+      </ul>
+    </div>
+    <div id="caloriesPlot"></div>
+    <div id="horizontalSelectorContainer">
+      <div id="horizontalSelector" onclick="toggleXDropdown(event)">
+        <span id="currentXSelection">Time</span>
+      </div>
+      <ul id="horizontalDropdown" class="hidden">
+      </ul>
     </div>
   </div>
-  <div>
-      <div id="macroNutrientsPlot"></div>
-  </div>
+    </div>
+
+    <div class="tab-content content2">
+        <h2>Content for Tab 2</h2>
+        <p>This is some content in Tab 2.</p>
+        <!-- Add more content here -->
+    </div>
+<div>
+  <div id="macroNutrientsPlot"></div>
+</div>
 </body>
 
 
 <script>
-
 let caloriesData = null;
-let selectedVariables = ["calories in", "calories out"];
+let selectedYVariables = ["calories in", "calories out"];
+let selectedXVariable = "date";
 
-function updateSelected(variable, checkbox) {
+function updateYSelected(variable, checkbox) {
     if (checkbox.checked) {
-        if (!selectedVariables.includes(variable)) {
-            selectedVariables.push(variable);
+        if (!selectedYVariables.includes(variable)) {
+            selectedYVariables.push(variable);
         }
     } else {
-        selectedVariables = selectedVariables.filter(item => item !== variable);
+        selectedYVariables = selectedYVariables.filter(item => item !== variable);
     }
-    const dropdownText = document.getElementById('currentSelection');
+    const dropdownText = document.getElementById('currentYSelection');
     try {
-        dropdownText.innerText = selectedVariables[0];
+        dropdownText.innerText = selectedYVariables[0];
     } catch(error) {} 
     plotCaloriesData(); // Example call
 }
 
-function toggleDropdown(event) {
-    const dropdown = document.getElementById('customDropdown');
+function toggleYDropdown(event) {
+    const dropdown = document.getElementById('verticalDropdown');
     if (!dropdown) {
         console.error("Dropdown element not found!");
         return;
@@ -102,9 +119,14 @@ function toggleDropdown(event) {
     dropdown.classList.toggle('visible');
 }
 
-function changeYaxis(event, yAxis) {
-    // Logic to update the plot with the selected yAxis
-    //plotCaloriesData(yAxis);
+
+function toggleXDropdown(event) {
+    const dropdown = document.getElementById('horizontalDropdown');
+    dropdown.classList.toggle('hidden');
+    dropdown.classList.toggle('visible');
+}
+
+function updateXSelected(label, checkbox) {
     const currentSelection = document.getElementById('currentSelection');
     currentSelection.textContent = yAxis;
     toggleDropdown(event);  // Hide dropdown after selection
@@ -159,12 +181,10 @@ function plotCaloriesData() {
     let traces = [];
     let traceIndices = [];
 
-    selectedVariables.forEach((variable, index) => {
+    selectedYVariables.forEach((variable, index) => {
         const yValues = caloriesData[variable];
         const averageValue = yValues.reduce((sum, value) => sum + value, 0) / yValues.length;
-        
         const color = colorScale(index); 
-
         const trace = {
             x: caloriesData.date,
             y: yValues,
@@ -176,7 +196,7 @@ function plotCaloriesData() {
             marker: {
                 color: color
             },
-            name: variable.charAt(0).toUpperCase() + variable.slice(1)
+            name: `${variable.charAt(0).toUpperCase() + variable.slice(1)} - Avg: ${averageValue.toFixed(2)}`
         };
 
         const traceAverage = {
@@ -184,7 +204,7 @@ function plotCaloriesData() {
             y: [averageValue, averageValue],
             mode: 'lines',
             line: { color: color, dash: 'dashdot' },
-            name: `Average ${variable.charAt(0).toUpperCase() + variable.slice(1)}: ${averageValue.toFixed(2)}`
+            showlegend: false,
         };
 
         traces.push(trace);
@@ -193,7 +213,7 @@ function plotCaloriesData() {
     });
 
     var layout = {
-        xaxis: { title: 'Date', type: 'date' },
+        xaxis: { title: '', type: '' },
         plot_bgcolor:"31363F",
         paper_bgcolor:"#222831",
         font: {
@@ -226,7 +246,11 @@ function plotCaloriesData() {
             y: 1.15,
             yanchor: 'top',
             activebgcolor: '#CCCCCC'
-        }]
+        }],
+        legend: {
+            xanchor: 'right',
+            bgcolor: 'rgba(0,0,0,0)'
+        }
     };
     const options = {displaylogo: false};
 
@@ -262,22 +286,66 @@ function plotMacroNutrients() {
     Plotly.newPlot('macroNutrientsPlot', data, layout);
 }
 
+function generateVertList() {
+    const ul = document.getElementById('verticalDropdown');
+    ul.innerHTML = '';
+    Object.keys(caloriesData).forEach((key) => {
+        // Create list item
+        const li = document.createElement('li');
+
+        // Create checkbox
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.onchange = () => updateYSelected(key, checkbox);
+        checkbox.checked = false; // Default checked
+        if (key in selectedYVariables) {
+            checkbox.checked = true;
+        }
+
+        // Add checkbox to list item
+        li.appendChild(checkbox);
+
+        // Add label text (key) to list item
+        li.appendChild(document.createTextNode(key.charAt(0).toUpperCase() + key.slice(1)));
+
+        // Add list item to the unordered list
+        ul.appendChild(li);
+    });
+}
+
+function generateHoriList() {
+    const ul = document.getElementById('HorizontalDropdown');
+    ul.innerHTML = '';
+    Object.keys(caloriesData).forEach((key) => {
+        // Create list item
+        const li = document.createElement('li');
+
+        // Create checkbox
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.onchange = () => updateYSelected(key, checkbox);
+        checkbox.checked = false; // Default checked
+        if (key in selectedYVariables) {
+            checkbox.checked = true;
+        }
+
+        // Add checkbox to list item
+        li.appendChild(checkbox);
+
+        // Add label text (key) to list item
+        li.appendChild(document.createTextNode(key.charAt(0).toUpperCase() + key.slice(1)));
+
+        // Add list item to the unordered list
+        ul.appendChild(li);
+    });
+}
 
 async function getCaloriesData() {
     caloriesData = await getData("http://127.0.0.1:8080/calories");
+    generateVertList();
     plotCaloriesData();
     plotMacroNutrients()
 }
-
-//function setupEventListeners() {
-//    const customSelector = document.getElementById('customSelector');
-//    if (customSelector) {
-//        customSelector.addEventListener('click', toggleDropdown);
-//        console.log('Event listener added to customSelector');
-//    } else {
-//        console.error("Custom selector element not found!");
-//    }
-//}
 
 async function initialize() {
     await getCaloriesData();
