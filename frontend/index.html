@@ -43,9 +43,9 @@
       <div id="plotTypeButton" class="plot-type-button">Toggle Plot Mode</div>
       </div>
 
-      <div id="customSelectorContainer">
+      <div id="verticalSelectorContainer">
         <div id="customSelector" onclick="toggleDropdown(event)">
-          <span id="currentSelection">Calories</span>
+          <span id="currentSelection">Calories in</span>
         </div>
         <ul id="customDropdown" class="hidden">
           <li><input type="checkbox" onchange="updateSelected('calories in', this)" checked>Calories in</li>
@@ -84,6 +84,10 @@ function updateSelected(variable, checkbox) {
     } else {
         selectedVariables = selectedVariables.filter(item => item !== variable);
     }
+    const dropdownText = document.getElementById('currentSelection');
+    try {
+        dropdownText.innerText = selectedVariables[0];
+    } catch(error) {} 
     plotCaloriesData(); // Example call
 }
 
