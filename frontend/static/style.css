@@ -12,6 +12,19 @@ body {
   font-family: 'Courier New', monospace; 
 }
 
+#scatterPlotContainer {
+    display: flex;
+    align-items: center;
+    height: 600px; /* Set a fixed height for the entire plot and dropdown */
+    width: 100%;
+}
+
+#scatterPlot{
+    flex-grow: 1;
+    width: 100%;
+    height: 100%; /* Ensure the plot takes the full height */
+}
+
 #caloriesPlotContainer {
     display: flex;
     align-items: center;

@@ -20,6 +20,7 @@
         /* Active tab label */
         input[type="radio"]:checked + label {
             background-color: var(--c3);
+            color: var(--c1);
         }
 
         /* Style for tab content containers */

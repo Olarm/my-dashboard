@@ -39,58 +39,55 @@
           <div class="value-center">✔</div>
       </div>
   </div>
-    <div class="tabs"></div>
-        <!-- Radio buttons for tab toggling -->
-        <input type="radio" id="tab1" name="tabs" checked>
-        <label for="tab1" class="tab-label">Timeseries</label>
+  <div class="tabs"></div>
+      <!-- Radio buttons for tab toggling -->
+      <input type="radio" id="tab1" name="tabs" checked>
+      <label for="tab1" class="tab-label">Timeseries</label>
 
-        <input type="radio" id="tab2" name="tabs">
-        <label for="tab2" class="tab-label">Tab 2</label>
-    </div>
+      <input type="radio" id="tab2" name="tabs">
+      <label for="tab2" class="tab-label">Tab 2</label>
 
-    <!-- Tab contents -->
-    <div class="tab-content content1">
-        <h2>Content for Tab 1</h2>
-        <p>This is some content in Tab 1.</p>
-        <!-- Add more content here -->
-  <div id="caloriesPlotContainer" style="position: relative;">
-      
-    <div id="plotTypeButtonContainer">
-      <div id="plotTypeButton" class="plot-type-button">Toggle Plot Mode</div>
-    </div>
-
-    <div id="verticalSelectorContainer">
-      <div id="verticalSelector" onclick="toggleYDropdown(event)">
-        <span id="currentYSelection">Calories in</span>
+  <!-- Tab contents -->
+  <div class="tab-content content1">
+    <div id="caloriesPlotContainer" style="position: relative;">
+        
+      <div id="plotTypeButtonContainer">
+        <div id="plotTypeButton" class="plot-type-button">Toggle Plot Mode</div>
       </div>
-      <ul id="verticalDropdown" class="hidden">
-      </ul>
-    </div>
-    <div id="caloriesPlot"></div>
-    <div id="horizontalSelectorContainer">
-      <div id="horizontalSelector" onclick="toggleXDropdown(event)">
-        <span id="currentXSelection">Time</span>
+
+      <div id="verticalSelectorContainer">
+        <div id="verticalSelector" onclick="toggleYDropdown(event)">
+          <span id="currentYSelection">Calories in</span>
+        </div>
+        <ul id="verticalDropdown" class="hidden">
+        </ul>
       </div>
-      <ul id="horizontalDropdown" class="hidden">
-      </ul>
+      <div id="caloriesPlot"></div>
+      <div id="horizontalSelectorContainer">
+        <div id="horizontalSelector" onclick="toggleXDropdown(event)">
+          <span id="currentXSelection">Time</span>
+        </div>
+        <ul id="horizontalDropdown" class="hidden">
+        </ul>
+      </div>
     </div>
   </div>
-    </div>
 
-    <div class="tab-content content2">
-        <h2>Content for Tab 2</h2>
-        <p>This is some content in Tab 2.</p>
-        <!-- Add more content here -->
+  <div class="tab-content content2">
+    <div id="scatterPlotContainer" style="position: relative;">
+      <div id="scatterPlot"></div>
     </div>
-<div>
-  <div id="macroNutrientsPlot"></div>
-</div>
+  </div>
+  <div>
+    <div id="macroNutrientsPlot"></div>
+  </div>
 </body>
 
 
 <script>
 let caloriesData = null;
 let selectedYVariables = ["calories in", "calories out"];
+let selectedXVariables = ["sugar", "starch"];
 let selectedXVariable = "date";
 
 function updateYSelected(variable, checkbox) {
@@ -118,7 +115,6 @@ function toggleYDropdown(event) {
     dropdown.classList.toggle('hidden');
     dropdown.classList.toggle('visible');
 }
-
 
 function toggleXDropdown(event) {
     const dropdown = document.getElementById('horizontalDropdown');
@@ -213,6 +209,7 @@ function plotCaloriesData() {
     });
 
     var layout = {
+        autosize: 'true',
         xaxis: { title: '', type: '' },
         plot_bgcolor:"31363F",
         paper_bgcolor:"#222831",
@@ -255,6 +252,58 @@ function plotCaloriesData() {
     const options = {displaylogo: false};
 
     Plotly.newPlot('caloriesPlot', traces, layout, options);
+}
+
+function plotScatter() {
+    if (!caloriesData) {
+        console.error("No data");
+        return;
+    }
+    
+    const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+    let traces = [];
+    let traceIndices = [];
+
+    selectedXVariables.forEach((variable, index) => {
+        const xValues = caloriesData[variable];
+        const color = colorScale(index); 
+        const trace = {
+            x: xValues,
+            y: caloriesData.sleep_score,
+            mode: 'markers',
+              line: {
+                color: color,
+                width: 1
+            },
+            marker: {
+                color: color
+            },
+            name: `${variable.charAt(0).toUpperCase() + variable.slice(1)}`
+        };
+
+        traces.push(trace);
+        traceIndices.push(traces.length - 1);
+    });
+
+    var layout = {
+        autosize: true,
+        responsive: true,
+        xaxis: { title: '', type: '' },
+        plot_bgcolor:"31363F",
+        paper_bgcolor:"#222831",
+        font: {
+          color: '#CCCCCC',
+          family:'Courier New, monospace'
+        },
+        legend: {
+            xanchor: 'right',
+            bgcolor: 'rgba(0,0,0,0)'
+        }
+    };
+    const options = {displaylogo: false};
+
+    Plotly.newPlot('scatterPlot', traces, layout, options);
 }
 
 function plotMacroNutrients() {
@@ -340,10 +389,25 @@ function generateHoriList() {
     });
 }
 
+// Function to resize the plot when tab2 is activated
+function resizeScatterPlot() {
+    setTimeout(() => {
+        Plotly.Plots.resize('scatterPlot');
+    }, 100); // Small delay to ensure visibility change is complete
+}
+
+// Add event listener to tab radio buttons
+document.querySelector('#tab2').addEventListener('change', function() {
+    if (this.checked) {
+        resizeScatterPlot();
+    }
+});
+
 async function getCaloriesData() {
     caloriesData = await getData("http://127.0.0.1:8080/calories");
     generateVertList();
     plotCaloriesData();
+    plotScatter();
     plotMacroNutrients()
 }
 
