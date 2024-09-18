@@ -89,33 +89,6 @@ body {
       fill: purple !important;
   }
 
-
-    .plot-type-button {
-        background-color: var(--c1); /* Green */
-        border: 1px solid var(--c4);
-        color: var(--c4);
-        background-color: var(--c1);
-        padding: 3px 20px;
-        text-align: center;
-        display: inline-block;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    /* Hover effect for button */
-    .plot-type-button:hover {
-        background-color: var(--c4); /* Darker green */
-        color: var(--c1);
-    }
-
-    /* Position the button on top of the plot */
-    #plotTypeButtonContainer {
-        position: absolute;
-        top: 60px;
-        left: 30px; /* Mimicking the x: 0.1 in the Plotly layout */
-        z-index: 10; /* Ensure it's above the plot */
-    }
-
     /* Ensure plot takes up the full space */
     #caloriesPlot {
         width: 100%;
