@@ -277,7 +277,7 @@ function plotScatter() {
         const color = colorScale(index); 
         const trace = {
             x: xValues,
-            y: caloriesData["sleep time"].slice(1),
+            y: caloriesData["sleep_time"].slice(1),
             mode: 'markers',
               line: {
                 color: color,
@@ -297,7 +297,7 @@ function plotScatter() {
         autosize: true,
         responsive: true,
         xaxis: { title: '', type: '' },
-        yaxis: { title: 'calories out' },
+        yaxis: { title: 'sleep time' },
         plot_bgcolor:"31363F",
         paper_bgcolor:"#222831",
         font: {
