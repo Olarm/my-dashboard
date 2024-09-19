@@ -112,7 +112,27 @@ function get_per_day()
             sum(f.salt*c.amount/100) as salt,
             sum(f.sugar*c.amount/100) sugar,
             sum(f.starch*c.amount/100) as starch,
-            sum(f.fiber*c.amount/100) as fiber
+            sum(f.fiber*c.amount/100) as fiber,
+            sum(f.vitamina*c.amount/100) as vitamin_A,
+            sum(f.vitaminb1*c.amount/100) as vitamin_b1,
+            sum(f.vitaminb2*c.amount/100) as vitamin_b2,
+            sum(f.vitaminb3*c.amount/100) as vitamin_b3,
+            sum(f.vitaminb5*c.amount/100) as vitamin_b5,
+            sum(f.vitaminb6*c.amount/100) as vitamin_b6,
+            sum(f.vitaminb7*c.amount/100) as vitamin_b7,
+            sum(f.vitaminb9*c.amount/100) as vitamin_b9,
+            sum(f.vitaminb12*c.amount/100) as vitamin_b12,
+            sum(f.vitamind*c.amount/100) as vitamin_d,
+            sum(f.vitamine*c.amount/100) as vitamin_e,
+            sum(f.vitamink*c.amount/100) as calcium,
+            sum(f.vitamind*c.amount/100) as chloride,
+            sum(f.vitamind*c.amount/100) as magnesium,
+            sum(f.vitamind*c.amount/100) as phosphorous,
+            sum(f.vitamind*c.amount/100) as kalium,
+            sum(f.vitamind*c.amount/100) as sodium,
+            sum(f.vitamind*c.amount/100) as ,
+            sum(f.vitamind*c.amount/100) as vitamin_d,
+            sum(f.vitamind*c.amount/100) as vitamin_d,
         FROM consumed c 
         LEFT JOIN food f ON f.id = c.food
         GROUP BY date ORDER BY date DESC;
