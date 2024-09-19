@@ -58,6 +58,12 @@
         </ul>
       </div>
       <div id="caloriesPlot"></div>
+    </div>
+  </div>
+
+  <div class="tab-content content2">
+    <div id="scatterPlotContainer" style="position: relative;">
+      <div id="scatterPlot"></div>
       <div id="horizontalSelectorContainer">
         <div id="horizontalSelector" onclick="toggleXDropdown(event)">
           <span id="currentXSelection">Time</span>
@@ -65,12 +71,6 @@
         <ul id="horizontalDropdown" class="hidden">
         </ul>
       </div>
-    </div>
-  </div>
-
-  <div class="tab-content content2">
-    <div id="scatterPlotContainer" style="position: relative;">
-      <div id="scatterPlot"></div>
     </div>
   </div>
   <div>
@@ -358,7 +358,11 @@ function generateVertList() {
 }
 
 function generateHoriList() {
-    const ul = document.getElementById('HorizontalDropdown');
+    const ul = document.getElementById('horizontalDropdown');
+    if (!ul) {
+        console.error("Couldnt get horizontalDropdown");
+        return;
+    }
     ul.innerHTML = '';
     Object.keys(caloriesData).forEach((key) => {
         // Create list item
@@ -367,7 +371,7 @@ function generateHoriList() {
         // Create checkbox
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.onchange = () => updateYSelected(key, checkbox);
+        checkbox.onchange = () => updateXSelected(key, checkbox);
         checkbox.checked = false; // Default checked
         if (key in selectedYVariables) {
             checkbox.checked = true;
@@ -401,6 +405,7 @@ document.querySelector('#tab2').addEventListener('change', function() {
 async function getCaloriesData() {
     caloriesData = await getData("http://127.0.0.1:8080/calories");
     generateVertList();
+    generateHoriList();
     plotCaloriesData();
     plotScatter();
     plotMacroNutrients()
