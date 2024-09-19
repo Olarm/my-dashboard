@@ -117,10 +117,22 @@ function toggleXDropdown(event) {
     dropdown.classList.toggle('visible');
 }
 
-function updateXSelected(label, checkbox) {
-    const currentSelection = document.getElementById('currentSelection');
-    currentSelection.textContent = yAxis;
-    toggleDropdown(event);  // Hide dropdown after selection
+function updateXSelected(variable, checkbox) {
+    //const currentSelection = document.getElementById('currentSelection');
+    //currentSelection.textContent = yAxis;
+    //toggleXDropdown(event);  // Hide dropdown after selection
+    if (checkbox.checked) {
+        if (!selectedXVariables.includes(variable)) {
+            selectedXVariables.push(variable);
+        }
+    } else {
+        selectedXVariables = selectedXVariables.filter(item => item !== variable);
+    }
+    const dropdownText = document.getElementById('currentXSelection');
+    try {
+        dropdownText.innerText = selectedXVariables[0];
+    } catch(error) {} 
+    plotScatter(); // Example call
 }
 
 async function getData(url) {
@@ -261,11 +273,11 @@ function plotScatter() {
     let traceIndices = [];
 
     selectedXVariables.forEach((variable, index) => {
-        const xValues = caloriesData[variable];
+        const xValues = caloriesData[variable].slice(0,-1);
         const color = colorScale(index); 
         const trace = {
             x: xValues,
-            y: caloriesData.sleep_score,
+            y: caloriesData["sleep time"].slice(1),
             mode: 'markers',
               line: {
                 color: color,
@@ -285,6 +297,7 @@ function plotScatter() {
         autosize: true,
         responsive: true,
         xaxis: { title: '', type: '' },
+        yaxis: { title: 'calories out' },
         plot_bgcolor:"31363F",
         paper_bgcolor:"#222831",
         font: {
@@ -341,10 +354,7 @@ function generateVertList() {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.onchange = () => updateYSelected(key, checkbox);
-        checkbox.checked = false; // Default checked
-        if (key in selectedYVariables) {
-            checkbox.checked = true;
-        }
+        checkbox.checked = selectedYVariables.includes(key);
 
         // Add checkbox to list item
         li.appendChild(checkbox);
@@ -372,10 +382,7 @@ function generateHoriList() {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.onchange = () => updateXSelected(key, checkbox);
-        checkbox.checked = false; // Default checked
-        if (key in selectedYVariables) {
-            checkbox.checked = true;
-        }
+        checkbox.checked = selectedXVariables.includes(key);
 
         // Add checkbox to list item
         li.appendChild(checkbox);
@@ -404,6 +411,7 @@ document.querySelector('#tab2').addEventListener('change', function() {
 
 async function getCaloriesData() {
     caloriesData = await getData("http://127.0.0.1:8080/calories");
+    console.log(Object.keys(caloriesData));
     generateVertList();
     generateHoriList();
     plotCaloriesData();
