@@ -20,8 +20,19 @@ function calories_in_out()
     food[!, "calories in"] = food.calories
     activity = Db.get_activity()
     activity[!, "calories out"] = activity.kilocalories
+    sleep = Db.get_sleep()
+    disallowmissing!(sleep)
     df = innerjoin(food, activity, on=:date)
-    df = select!(df, Not([:calories, :kilocalories, :pk, :inactivity_stamps]))
+    df = innerjoin(df, sleep, on=:date)
+    df = select!(df, Not([
+        :calories, 
+        :kilocalories, 
+        :pk, 
+        :inactivity_stamps,
+        :device_id,
+        :polar_user,
+        :id
+    ]))
     return df
 end
 
