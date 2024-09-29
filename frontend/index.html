@@ -273,11 +273,13 @@ function plotScatter() {
     let traceIndices = [];
 
     selectedXVariables.forEach((variable, index) => {
-        const xValues = caloriesData[variable].slice(0,-1);
+        //const xValues = caloriesData[variable].slice(0,-1);
+        const xValues = caloriesData[variable];
         const color = colorScale(index); 
         const trace = {
             x: xValues,
-            y: caloriesData["sleep_time"].slice(1),
+            //y: caloriesData["sleep_time"].slice(1),
+            y: caloriesData["sleep_score"],
             mode: 'markers',
               line: {
                 color: color,
@@ -297,7 +299,7 @@ function plotScatter() {
         autosize: true,
         responsive: true,
         xaxis: { title: '', type: '' },
-        yaxis: { title: 'sleep time' },
+        yaxis: { title: 'Sleep score' },
         plot_bgcolor:"31363F",
         paper_bgcolor:"#222831",
         font: {

@@ -1,6 +1,6 @@
 module Food
 
-using DataFrames
+using DataFrames, Statistics
 
 
 import ..Db
@@ -16,9 +16,9 @@ end
 
 
 function calories_in_out()
-    food = Db.get_per_day()
+    food = disallowmissing(Db.get_per_day())
     food[!, "calories in"] = food.calories
-    activity = Db.get_activity()
+    activity = dropmissing(Db.get_activity())
     activity[!, "calories out"] = activity.kilocalories
     sleep = Db.get_sleep()
     disallowmissing!(sleep)
@@ -36,4 +36,23 @@ function calories_in_out()
     return df
 end
 
+struct CorrMatrix
+    cols::Vector{String}
+    M::Matrix{Float64}
+end
+
+function correlation_matrix()
+    df = calories_in_out()
+    df = select!(df, Not([
+        :date,
+        :sleep_start_time,
+        :sleep_end_time,
+        :sleep_goal,
+        :unrecognized_sleep_stage,
+        :salt
+    ]))
+    cols = names(df)
+    M = cor(Array{Float64}(Matrix(df)))
+    CorrMatrix(cols, M)
+end
 end
