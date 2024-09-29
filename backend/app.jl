@@ -85,6 +85,7 @@ function get_nasalspray(req)
     return HTTP.Response(200, "hello")
 end
 
+initialize()
 
 const ROUTER = HTTP.Router()
 #HTTP.register!(ROUTER, "GET", "/api/nasalspray", get_nasalspray)

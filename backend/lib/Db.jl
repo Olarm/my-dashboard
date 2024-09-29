@@ -1,7 +1,20 @@
 module Db
-export get_enviro, get_nasalspray, get_activity, get_sleep_data, get_sleep, get_config, get_total_calories, get_per_day
+export 
+    get_enviro, 
+    get_nasalspray, 
+    get_activity, 
+    get_sleep_data, 
+    get_sleep, 
+    get_config, 
+    get_total_calories, 
+    get_per_day,
+    get_conn,
+    initialize
+
 using LibPQ, DataFrames, JSON3, TOML, Dates
 
+include("users.jl")
+using .Users
 
 function get_config()
     open("config.toml", "r") do io
@@ -21,6 +34,15 @@ function get_conn()
     """
     return LibPQ.Connection(conn_str)
 end
+
+
+function initialize()
+    @info "Initializing DB"
+    conn = get_conn()
+    create_users_table(conn)
+    @info "Successfully initialized DB"
+end
+
 
 function get_conn_ha()
     config = get_config()["db"]
@@ -72,7 +94,16 @@ end
 
 function get_sleep()
     conn = get_conn()
-    query = """SELECT * FROM sleep ORDER BY date"""
+    query = """
+        SELECT 
+            s.*,
+            avg(hr.heart_rate) avg_sleep_heart_rate
+        FROM sleep s
+        LEFT JOIN sleep_heart_rate hr
+        ON hr.sleep_id = s.id
+        GROUP BY s.id
+        ORDER BY date
+    """
     df = execute(conn, query) |> DataFrame
     #df = JSON3.read.(temp_df.data) |> DataFrame
     #df.date = Date.(df.date)
