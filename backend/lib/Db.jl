@@ -5,6 +5,7 @@ export
     get_activity, 
     get_sleep_data, 
     get_sleep, 
+    get_recharge,
     get_config, 
     get_total_calories, 
     get_per_day,
@@ -107,6 +108,22 @@ function get_sleep()
     df = execute(conn, query) |> DataFrame
     #df = JSON3.read.(temp_df.data) |> DataFrame
     #df.date = Date.(df.date)
+    close(conn)
+    return df
+end
+
+
+function get_recharge()
+    conn = get_conn()
+    query = """
+        SELECT
+            date, heart_rate_avg, beat_to_beat_avg, 
+            heart_rate_variability_avg, breathing_rate_avg,
+            nightly_recharge_status, ans_charge, ans_charge_status
+        FROM polar_recharge
+        ORDER BY date
+    """
+    df = execute(conn, query) |> DataFrame
     close(conn)
     return df
 end

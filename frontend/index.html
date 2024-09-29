@@ -273,13 +273,11 @@ function plotScatter() {
     let traceIndices = [];
 
     selectedXVariables.forEach((variable, index) => {
-        //const xValues = caloriesData[variable].slice(0,-1);
-        const xValues = caloriesData[variable];
+        const xValues = caloriesData[variable].slice(0,-1);
         const color = colorScale(index); 
         const trace = {
             x: xValues,
-            //y: caloriesData["sleep_time"].slice(1),
-            y: caloriesData["sleep_score"],
+            y: caloriesData["ans_charge"].slice(1),
             mode: 'markers',
               line: {
                 color: color,
