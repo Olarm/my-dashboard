@@ -50,11 +50,11 @@
   <!-- Tab contents -->
   <div class="tab-content content1">
     <div id="caloriesPlotContainer" style="position: relative;">
-      <div id="verticalSelectorContainer">
+      <div class="verticalSelectorContainer">
         <div id="verticalSelector" onclick="toggleYDropdown(event)">
           <span id="currentYSelection">Calories in</span>
         </div>
-        <ul id="verticalDropdown" class="hidden">
+        <ul id="verticalDropdownScatter" class="verticalDropdown hidden">
         </ul>
       </div>
       <div id="caloriesPlot"></div>
@@ -101,7 +101,7 @@ function updateYSelected(variable, checkbox) {
 }
 
 function toggleYDropdown(event) {
-    const dropdown = document.getElementById('verticalDropdown');
+    const dropdown = document.getElementById('verticalDropdownScatter');
     if (!dropdown) {
         console.error("Dropdown element not found!");
         return;
@@ -344,7 +344,7 @@ function plotMacroNutrients() {
 }
 
 function generateVertList() {
-    const ul = document.getElementById('verticalDropdown');
+    const ul = document.getElementById('verticalDropdownScatter');
     ul.innerHTML = '';
     Object.keys(caloriesData).forEach((key) => {
         // Create list item

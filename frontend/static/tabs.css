@@ -1,38 +1,38 @@
-        .tabs {
-            display: flex;
-            justify-content: flex-start;
-            margin-bottom: 10px;
-        }
+.tabs {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+}
 
-        /* Hide radio buttons */
-        input[type="radio"] {
-            display: none;
-        }
+/* Hide radio buttons */
+input[type="radio"] {
+    display: none;
+}
 
-        /* Style for tab labels */
-        .tab-label {
-            padding: 10px 20px;
-            background-color: var(--c2);
-            margin-right: 2px;
-            cursor: pointer;
-        }
+/* Style for tab labels */
+.tab-label {
+    padding: 10px 20px;
+    background-color: var(--c2);
+    margin-right: 2px;
+    cursor: pointer;
+}
 
-        /* Active tab label */
-        input[type="radio"]:checked + label {
-            background-color: var(--c3);
-            color: var(--c1);
-        }
+/* Active tab label */
+input[type="radio"]:checked + label {
+    background-color: var(--c3);
+    color: var(--c1);
+}
 
-        /* Style for tab content containers */
-        .tab-content {
-            display: none;
-            padding: 20px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
+/* Style for tab content containers */
+.tab-content {
+    display: none;
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
 
-        /* Show the content of the checked tab */
-        #tab1:checked ~ .content1,
-        #tab2:checked ~ .content2 {
-            display: block;
-        }
+/* Show the content of the checked tab */
+#tab1:checked ~ .content1,
+#tab2:checked ~ .content2 {
+    display: block;
+}
