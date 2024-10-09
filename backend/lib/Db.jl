@@ -117,9 +117,13 @@ function get_recharge()
     conn = get_conn()
     query = """
         SELECT
-            date, heart_rate_avg, beat_to_beat_avg, 
-            heart_rate_variability_avg, breathing_rate_avg,
-            nightly_recharge_status, ans_charge, ans_charge_status
+            date, 
+            beat_to_beat_avg, 
+            heart_rate_variability_avg, 
+            breathing_rate_avg,
+            nightly_recharge_status, 
+            ans_charge, 
+            ans_charge_status
         FROM polar_recharge
         ORDER BY date
     """
@@ -305,6 +309,17 @@ function get_sleep_json()
         push!(nights, json_data)
     end
     return nights
+end
+
+
+function get_calories_to_sleep()
+    """
+    WIP: Take all food eaten and subtract a number proportional to the dt between dateeaten and sleep_start_time
+    """
+
+    query = """
+    select sleep_start_time, date_trunc('minute', dateeaten) AS truncated_time, sum(f.calories*c.amount/100) calories from consumed c join food f on f.id = c.food join sleep s on s.date = c.dateeaten::date group by truncated_time, sleep_start_time order by truncated_time desc limit 15;
+    """
 end
 
 end
