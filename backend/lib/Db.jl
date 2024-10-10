@@ -318,7 +318,7 @@ function get_calories_to_sleep()
     """
 
     query = """
-    select sleep_start_time, date_trunc('minute', dateeaten) AS truncated_time, sum(f.calories*c.amount/100) calories from consumed c join food f on f.id = c.food join sleep s on s.date = c.dateeaten::date group by truncated_time, sleep_start_time order by truncated_time desc limit 15;
+    select sleep_start_time, dateeaten, GREATEST(EXTRACT(EPOCH FROM (sleep_start_time - dateeaten)) - sum(f.calories*c.amount/100), 0), date_trunc('minute', dateeaten) AS truncated_time, sum(f.calories*c.amount/100) calories from consumed c join food f on f.id = c.food join sleep s on s.date = c.dateeaten::date + INTERVAL '1 day' group by truncated_time, sleep_start_time, dateeaten order by truncated_time desc limit 15;
     """
 end
 
