@@ -9,6 +9,7 @@ export
     get_config, 
     get_total_calories, 
     get_per_day,
+    get_eat_sleep_score,
     get_conn,
     initialize
 
@@ -312,14 +313,26 @@ function get_sleep_json()
 end
 
 
-function get_calories_to_sleep()
+function get_eat_sleep_score()
     """
     WIP: Take all food eaten and subtract a number proportional to the dt between dateeaten and sleep_start_time
     """
+    conn = get_conn()
 
     query = """
-    select sleep_start_time, dateeaten, GREATEST(EXTRACT(EPOCH FROM (sleep_start_time - dateeaten)) - sum(f.calories*c.amount/100), 0), date_trunc('minute', dateeaten) AS truncated_time, sum(f.calories*c.amount/100) calories from consumed c join food f on f.id = c.food join sleep s on s.date = c.dateeaten::date + INTERVAL '1 day' group by truncated_time, sleep_start_time, dateeaten order by truncated_time desc limit 15;
+    SELECT
+        GREATEST(sum(f.calories*c.amount/100) / EXTRACT(EPOCH FROM (sleep_start_time - dateeaten)), 0) eat_sleep_score, 
+        s.date
+    FROM 
+        consumed c 
+    JOIN food f ON f.id = c.food 
+    JOIN sleep s ON s.date = c.dateeaten::date + INTERVAL '1 day' 
+    GROUP BY s.date, sleep_start_time, dateeaten
+    ORDER BY s.date;
     """
+    df = execute(conn, query) |> DataFrame
+    close(conn)
+    combine(groupby(df, :date), :eat_sleep_score => sum => :daily_eat_sleep_score)
 end
 
 end
