@@ -10,6 +10,8 @@ using .Food
 #using Main.StatisticAnalysis
 
 
+const STATIC_DIR = joinpath(@__DIR__, "frontend")
+
 
 function parse_auth(req)
     @info req
@@ -56,6 +58,14 @@ function auth_middleware(handler)
     end
 end
 
+function get_dashboard(req)
+    @info "GOT Request"
+    path = joinpath(STATIC_DIR, "index.html")
+    html_content = read(path, String)
+
+    return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
+end
+
 function get_activity(req)
     df = Db.get_activity()
     data = Dict("name" => "Julia", "language" => "Julia", "dates" => df.date, "steps" => df.steps)
@@ -85,12 +95,43 @@ function get_nasalspray(req)
     return HTTP.Response(200, "hello")
 end
 
+function get_mime_type(file_path::String)
+    ext = splitext(file_path)[2]
+    mime_types = Dict(
+        ".css" => "text/css",
+        ".html" => "text/html",
+        ".js" => "application/javascript",
+        ".png" => "image/png",
+        ".jpg" => "image/jpeg",
+        ".svg" => "image/svg+xml"
+    )
+    get(mime_types, ext, "application/octet-stream")
+end
+
+function serve_static_file(req::HTTP.Request)
+    relative_path = replace(String(req.target), "/static/" => "static/")
+    file_path = joinpath(STATIC_DIR, relative_path)
+    
+    if isfile(file_path)
+        mime_type = get_mime_type(file_path)
+        content = read(file_path)
+        return HTTP.Response(200, Dict("Content-Type" => mime_type), content)
+    else
+        @warn "File not found: $(file_path)"
+        return HTTP.Response(404, "File not found.")
+    end
+end
+
+
 initialize()
 
 const ROUTER = HTTP.Router()
 #HTTP.register!(ROUTER, "GET", "/api/nasalspray", get_nasalspray)
 HTTP.register!(ROUTER, "GET", "/activity", get_activity)
 HTTP.register!(ROUTER, "GET", "/calories", get_calories)
+HTTP.register!(ROUTER, "GET", "/dashboard", get_dashboard)
+HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
+
 
 #HTTP.serve(ROUTER |> auth_middleware, Sockets.localhost, 8080)
 HTTP.serve(ROUTER, Sockets.localhost, 8080)

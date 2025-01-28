@@ -84,6 +84,27 @@ function get_activity()
 end
 
 
+function get_exercise_tcx()
+    conn = get_conn()
+    query = """
+        SELECT 
+            start_time,
+            distance,
+            hr_avg,
+            hr_max,
+            hr_min,
+            duration,
+            sport_type,
+            calories,
+            ascent,
+            descent
+        FROM exercises_tcx 
+        ORDER BY date;
+    """
+    df = execute(conn, query) |> DataFrame
+end
+
+
 function get_sleep_data()
     conn = get_conn()
     query = """SELECT * FROM sleep_data ORDER BY date;"""
@@ -264,9 +285,11 @@ end
 
 function get_averages()
     conn = get_conn_ha()
-    query = """
-        SELECT AVG)
-    """
+    query = "SELECT AVG(steps) FROM activity;"
+    steps = first(fetch(execute(conn, query)))[1]
+    query = "SELECT AVG(heart_rate) from sleep_heart_rate;"
+    sleep_hr = execute(query) |> DataFrame
+
 
 end
 

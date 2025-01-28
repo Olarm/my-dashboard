@@ -1,1 +1,5 @@
 config.toml
+tcx
+*.tcx
+*.TCX
+*.Tcx

@@ -10,7 +10,8 @@ function correlations()
     disallowmissing!(sleep)
     df = innerjoin(food, sleep, on=:date)
     select!(df, Not([:date, :polar_user, :id, :device_id, :sleep_start_time, :sleep_end_time]))
-    return df
+    dropmissing!(df)
+    #return df
     cors = [[cor(a, b) for a in eachcol(df)] for b in eachcol(df)]
     return cors
 end

@@ -21,7 +21,7 @@ function calories_in_out()
     activity = dropmissing(Db.get_activity())
     activity[!, "calories out"] = activity.kilocalories
     sleep = Db.get_sleep()
-    disallowmissing!(sleep)
+    dropmissing!(sleep)
     recharge = dropmissing(Db.get_recharge())
     eat_sleep_score = Db.get_eat_sleep_score()
     df = innerjoin(food, activity, on=:date)
