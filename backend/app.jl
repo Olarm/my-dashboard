@@ -79,6 +79,18 @@ function get_trip(req)
     HTTP.Response(200, headers, data)
 end
 
+function get_trips(req)
+    data = get_exercises()
+    @info "got exercises"
+
+    headers = Dict(
+        "Access-Control-Allow-Origin" => "*",         # Allow requests from any origin
+        "Access-Control-Allow-Methods" => "GET",      # Allow only GET requests
+        "Access-Control-Allow-Headers" => "Content-Type", # Allow the Content-Type header
+        "Content-Type" => "application/json"          # Ensure response is JSON
+    )
+    HTTP.Response(200, headers, data)
+end
 
 function get_dashboard(req)
     @info "GOT Request"
@@ -154,6 +166,7 @@ HTTP.register!(ROUTER, "GET", "/calories", get_calories)
 HTTP.register!(ROUTER, "GET", "/dashboard", get_dashboard)
 HTTP.register!(ROUTER, "GET", "/map", get_map)
 HTTP.register!(ROUTER, "GET", "/trip", get_trip)
+HTTP.register!(ROUTER, "GET", "/trips", get_trips)
 HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
 
 

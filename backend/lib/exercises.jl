@@ -34,3 +34,28 @@ function get_exercise(id=24)
     
     return result_json
 end
+
+function get_exercises()
+
+    conn = get_conn()
+    query = """
+        SELECT json_build_object(
+        'tcx_ids', jsonb_agg(tcx_id),
+        'latLons', jsonb_agg(coordinate_group),
+        'timestamps', jsonb_agg(timestamp_group)
+    ) AS result
+    FROM (
+        SELECT 
+            tcx_id,
+            jsonb_agg(jsonb_build_array(latitude, longitude)) AS coordinate_group,
+            jsonb_agg(time) AS timestamp_group
+        FROM gpx_track_points
+        GROUP BY tcx_id
+        ) subquery
+    """
+    res = execute(conn, query)
+
+    json_result = JSON3.read(res[1, :result])
+    
+    return json_result
+end

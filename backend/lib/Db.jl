@@ -12,7 +12,8 @@ export
     get_eat_sleep_score,
     get_conn,
     initialize,
-    get_exercise
+    get_exercise,
+    get_exercises
 
 using LibPQ, DataFrames, JSON3, TOML, Dates
 
