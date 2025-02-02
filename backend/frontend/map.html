@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html land="no">
+    <head>
+    <meta charset="utf-8"/>
+    <title>Kartverkskart</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="crossorigin=""></script>
+        <style>
+            #map {height: 90vh;
+                width: 90vw }
+        </style>
+    </head>
+
+    <body>
+
+        <h1>Kart</h1>
+
+        <div id="map"></div>
+
+        <script type="text/javascript">
+            var map = L.map('map', {renderer: L.canvas()}).setView([60.36,5.35],12);
+
+            <!-- Dette eksempelet her gjelder for topo tjenesten, må endre tileLayer URL for å benytte annen tjeneste -->
+            L.tileLayer('https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png', {
+            maxZoom: 18,
+            attribution: '&copy; <a href="http://www.kartverket.no/">Kartverket</a>'
+
+            }).addTo(map);
+
+
+            async function getData(url) {
+              try {
+                const options = { method: 'GET' };
+                const response = await fetch(url, options);
+
+                if (!response.ok) {
+                  throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                return data;
+              } catch (error) {
+                console.error('Error fetching data:', error);
+              }
+            }
+
+            async function getMapData() {
+                const mapData = await getData("http://127.0.0.1:8080/trip");
+                console.log(mapData);
+                var polyline = L.polyline(mapData['latLons'], {color: 'blue'}).addTo(map);
+            }
+
+            async function initialize() {
+                await getMapData();
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                initialize();
+            });
+        </script>
+    </body>
+
+</html>

@@ -11,12 +11,14 @@ export
     get_per_day,
     get_eat_sleep_score,
     get_conn,
-    initialize
+    initialize,
+    get_exercise
 
 using LibPQ, DataFrames, JSON3, TOML, Dates
 
 include("users.jl")
 using .Users
+include("exercises.jl")
 
 function get_config()
     open("config.toml", "r") do io
