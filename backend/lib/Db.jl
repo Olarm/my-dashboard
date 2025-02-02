@@ -67,14 +67,10 @@ function get_enviro()
     return df
 end
 
-function get_enviro_sleep()
+function get_enviro_recharge()
     conn = get_conn()
     query = """
         SELECT 
-            s.sleep_start_time, 
-            s.sleep_end_time, 
-            s.sleep_score,
-            s.sleep_charge,
             r.heart_rate_avg,
             r.beat_to_beat_avg,
             r.heart_rate_variability_avg,
@@ -116,16 +112,64 @@ function get_enviro_sleep()
             ON e.timestamp 
             BETWEEN s.sleep_start_time AND s.sleep_end_time 
         GROUP BY 
-            s.sleep_start_time, 
-            s.sleep_end_time,
-            s.sleep_score,
-            s.sleep_charge,
             r.heart_rate_avg,
             r.beat_to_beat_avg,
             r.heart_rate_variability_avg,
             r.breathing_rate_avg,
             r.nightly_recharge_status,
             r.ans_charge;
+    """
+    df = execute(conn, query) |> DataFrame
+    close(conn)
+    return df
+end
+
+
+function get_enviro_sleep()
+    conn = get_conn()
+    query = """
+        SELECT 
+            s.sleep_start_time, 
+            s.sleep_end_time, 
+            s.sleep_score,
+            s.sleep_charge,
+            AVG(e.temperature) avg_temperature, 
+            MIN(e.temperature) min_temperature, 
+            MAX(e.temperature) max_temperature,
+            VARIANCE(e.temperature) var_temperature,
+            AVG(e.pressure) avg_pressure,
+            MIN(e.pressure) min_pressure,
+            MAX(e.pressure) max_pressure,
+            VARIANCE(e.pressure) var_pressure,
+            AVG(e.humidity) avg_humidity,
+            MIN(e.humidity) min_humidity,
+            MAX(e.humidity) max_humidity,
+            VARIANCE(e.humidity) var_humidity,
+            AVG(e.oxidised) avg_oxidised,
+            MIN(e.oxidised) min_oxidised,
+            MAX(e.oxidised) max_oxidised,
+            VARIANCE(e.oxidised) var_oxidised,
+            AVG(e.reduced) avg_reduced,
+            MIN(e.reduced) min_reduced,
+            MAX(e.reduced) max_reduced,
+            VARIANCE(e.reduced) var_reduced,
+            AVG(e.nh3) avg_nh3,
+            MIN(e.nh3) min_nh3,
+            MAX(e.nh3) max_nh3,
+            VARIANCE(e.nh3) var_nh3,
+            AVG(e.lux) avg_lux,
+            MIN(e.lux) min_lux,
+            MAX(e.lux) max_lux,
+            VARIANCE(e.lux) var_lux
+        FROM sleep s 
+        LEFT JOIN enviro_plus e 
+            ON e.timestamp 
+            BETWEEN s.sleep_start_time AND s.sleep_end_time 
+        GROUP BY 
+            s.sleep_start_time, 
+            s.sleep_end_time,
+            s.sleep_score,
+            s.sleep_charge
     """
     df = execute(conn, query) |> DataFrame
     close(conn)
