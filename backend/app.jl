@@ -58,6 +58,13 @@ function auth_middleware(handler)
     end
 end
 
+function get_table(req)
+    path = joinpath(STATIC_DIR, "table.html")
+    html_content = read(path, String)
+
+    return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
+end
+
 function get_map(req)
     path = joinpath(STATIC_DIR, "map.html")
     html_content = read(path, String)
@@ -89,7 +96,21 @@ function get_trips(req)
         "Access-Control-Allow-Headers" => "Content-Type", # Allow the Content-Type header
         "Content-Type" => "application/json"          # Ensure response is JSON
     )
-    HTTP.Response(200, headers, data)
+    HTTP.Response(200, headers, JSON3.write(data))
+end
+
+function get_exercise_data(req)
+    data = get_exercise_tcx()
+    headers = Dict(
+        "Access-Control-Allow-Origin" => "*",         # Allow requests from any origin
+        "Access-Control-Allow-Methods" => "GET",      # Allow only GET requests
+        "Access-Control-Allow-Headers" => "Content-Type", # Allow the Content-Type header
+        "Content-Type" => "application/json"          # Ensure response is JSON
+    )
+
+    
+
+    HTTP.Response(200, headers, JSON3.write(data))
 end
 
 function get_dashboard(req)
@@ -165,6 +186,7 @@ HTTP.register!(ROUTER, "GET", "/activity", get_activity)
 HTTP.register!(ROUTER, "GET", "/calories", get_calories)
 HTTP.register!(ROUTER, "GET", "/dashboard", get_dashboard)
 HTTP.register!(ROUTER, "GET", "/map", get_map)
+HTTP.register!(ROUTER, "GET", "/table", get_table)
 HTTP.register!(ROUTER, "GET", "/trip", get_trip)
 HTTP.register!(ROUTER, "GET", "/trips", get_trips)
 HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
@@ -172,7 +194,6 @@ HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
 
 #HTTP.serve(ROUTER |> auth_middleware, Sockets.localhost, 8080)
 HTTP.serve(ROUTER, Sockets.localhost, 8080)
-#HTTP.serve(get_activity, "127.0.0.1", 8080)
 
 
 end

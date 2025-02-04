@@ -48,7 +48,7 @@
             async function getMapData() {
                 const mapData = await getData("http://127.0.0.1:8080/trips");
                 console.log(mapData);
-                var polyline = L.polyline(mapData['latLons'], {color: 'blue'}).addTo(map);
+                var polyline = L.polyline(mapData['latLons'], {color: 'blue', weight: 1}).addTo(map);
             }
 
             async function initialize() {

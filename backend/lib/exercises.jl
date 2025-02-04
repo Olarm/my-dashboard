@@ -1,4 +1,9 @@
-using DataFrames, LibPQ, JSON3, TimeZones
+using 
+    DataFrames, 
+    LibPQ, 
+    JSON3, 
+    TimeZones,
+    Tables
 
 import .Db: get_conn
 
@@ -40,7 +45,7 @@ function get_exercises()
     conn = get_conn()
     query = """
         SELECT json_build_object(
-        'tcx_ids', jsonb_agg(tcx_id),
+        'tcxIds', jsonb_agg(tcx_id),
         'latLons', jsonb_agg(coordinate_group),
         'timestamps', jsonb_agg(timestamp_group)
     ) AS result
@@ -51,11 +56,11 @@ function get_exercises()
             jsonb_agg(time) AS timestamp_group
         FROM gpx_track_points
         GROUP BY tcx_id
-        ) subquery
+        ) subquery;
     """
     res = execute(conn, query)
+    data = columntable(res)
+    json_data = JSON3.read(data[1][1])
 
-    json_result = JSON3.read(res[1, :result])
-    
-    return json_result
+    return json_data
 end

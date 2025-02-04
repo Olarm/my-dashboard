@@ -212,7 +212,7 @@ function get_exercise_tcx()
             ascent,
             descent
         FROM exercises_tcx 
-        ORDER BY date;
+        ORDER BY start_time;
     """
     df = execute(conn, query) |> DataFrame
 end
