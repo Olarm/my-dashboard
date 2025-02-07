@@ -99,8 +99,8 @@ function get_trips(req)
     HTTP.Response(200, headers, JSON3.write(data))
 end
 
-function get_exercise_data(req)
-    data = get_exercise_tcx()
+function get_tcx(req)
+    data = Db.get_exercise_tcx()
     headers = Dict(
         "Access-Control-Allow-Origin" => "*",         # Allow requests from any origin
         "Access-Control-Allow-Methods" => "GET",      # Allow only GET requests
@@ -189,6 +189,7 @@ HTTP.register!(ROUTER, "GET", "/map", get_map)
 HTTP.register!(ROUTER, "GET", "/table", get_table)
 HTTP.register!(ROUTER, "GET", "/trip", get_trip)
 HTTP.register!(ROUTER, "GET", "/trips", get_trips)
+HTTP.register!(ROUTER, "GET", "/tcx", get_tcx)
 HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
 
 

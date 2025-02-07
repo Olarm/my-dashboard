@@ -10,6 +10,8 @@
       type="module"
     ></script>
 
+    <script src="static/table.js"></script>
+
     <link rel="stylesheet" type="text/css" href="static/style.css">
 
 </head>
@@ -21,31 +23,46 @@
 </body>
 
 <script>
-function tableCreate() {
-  const body = document.body,
-  tbl = document.createElement('table');
-  tbl.style.width = '400px';
-  tbl.style.border = '1px solid black';
 
-  for (let i = 0; i < 3; i++) {
-    const tr = tbl.insertRow();
-    for (let j = 0; j < 2; j++) {
-      if (i === 2 && j === 1) {
-        break;
-      } else {
-        const td = tr.insertCell();
-        td.appendChild(document.createTextNode(`Cell I${i}/J${j}`));
-        td.style.border = '1px solid black';
-        if (i === 1 && j === 1) {
-          td.setAttribute('rowSpan', '2');
-        }
-      }
+
+
+//const data = {
+//  "temp": [1,2,3,4,5],
+//  "humi": [5,3,2,5,2],
+//  "humi2": [5,3,2,5,2]
+//}
+
+async function getData(url) {
+  try {
+    const options = { method: 'GET' };
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
   }
-  body.appendChild(tbl);
 }
 
-tableCreate();
+async function getTCXData() {
+    const data = await getData("http://127.0.0.1:8080/tcx");
+    console.log(data);
+    tableCreate(data);
+
+}
+
+async function initialize() {
+    await getTCXData();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initialize();
+});
 
 </script>
 
