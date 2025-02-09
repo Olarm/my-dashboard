@@ -18,6 +18,15 @@ function parse_auth(req)
     return true
 end
 
+function get_headers()
+    return Dict(
+        "Access-Control-Allow-Origin" => "*",         # Allow requests from any origin
+        "Access-Control-Allow-Methods" => "GET",      # Allow only GET requests
+        "Access-Control-Allow-Headers" => "Content-Type", # Allow the Content-Type header
+        "Content-Type" => "application/json"          # Ensure response is JSON
+    )
+end
+
 function JSON_middleware(handler)
     # Middleware functions return *Handler* functions
     return function(req::HTTP.Request)
@@ -77,40 +86,19 @@ function get_trip(req)
     data = get_exercise()
     @info "got exercise"
 
-    headers = Dict(
-        "Access-Control-Allow-Origin" => "*",         # Allow requests from any origin
-        "Access-Control-Allow-Methods" => "GET",      # Allow only GET requests
-        "Access-Control-Allow-Headers" => "Content-Type", # Allow the Content-Type header
-        "Content-Type" => "application/json"          # Ensure response is JSON
-    )
-    HTTP.Response(200, headers, data)
+    HTTP.Response(200, get_headers(), data)
 end
 
 function get_trips(req)
     data = get_exercises()
     @info "got exercises"
 
-    headers = Dict(
-        "Access-Control-Allow-Origin" => "*",         # Allow requests from any origin
-        "Access-Control-Allow-Methods" => "GET",      # Allow only GET requests
-        "Access-Control-Allow-Headers" => "Content-Type", # Allow the Content-Type header
-        "Content-Type" => "application/json"          # Ensure response is JSON
-    )
-    HTTP.Response(200, headers, JSON3.write(data))
+    HTTP.Response(200, get_headers(), JSON3.write(data))
 end
 
 function get_tcx(req)
     data = Db.get_exercise_tcx()
-    headers = Dict(
-        "Access-Control-Allow-Origin" => "*",         # Allow requests from any origin
-        "Access-Control-Allow-Methods" => "GET",      # Allow only GET requests
-        "Access-Control-Allow-Headers" => "Content-Type", # Allow the Content-Type header
-        "Content-Type" => "application/json"          # Ensure response is JSON
-    )
-
-    
-
-    HTTP.Response(200, headers, JSON3.write(data))
+    HTTP.Response(200, get_headers(), JSON3.write(data))
 end
 
 function get_dashboard(req)
@@ -124,26 +112,14 @@ end
 function get_activity(req)
     df = Db.get_activity()
     data = Dict("name" => "Julia", "language" => "Julia", "dates" => df.date, "steps" => df.steps)
-    headers = Dict(
-        "Access-Control-Allow-Origin" => "*",         # Allow requests from any origin
-        "Access-Control-Allow-Methods" => "GET",      # Allow only GET requests
-        "Access-Control-Allow-Headers" => "Content-Type", # Allow the Content-Type header
-        "Content-Type" => "application/json"          # Ensure response is JSON
-    )
-    HTTP.Response(200, headers, JSON3.write(data))
+    HTTP.Response(200, get_headers(), JSON3.write(data))
 end
 
 function get_calories(req)
     @info "getting data"
     df = Food.calories_in_out()
     data = Tables.columntable(df)
-    headers = Dict(
-        "Access-Control-Allow-Origin" => "*",         # Allow requests from any origin
-        "Access-Control-Allow-Methods" => "GET",      # Allow only GET requests
-        "Access-Control-Allow-Headers" => "Content-Type", # Allow the Content-Type header
-        "Content-Type" => "application/json"          # Ensure response is JSON
-    )
-    HTTP.Response(200, headers, JSON3.write(data))
+    HTTP.Response(200, get_headers(), JSON3.write(data))
 end
 
 function get_nasalspray(req)
