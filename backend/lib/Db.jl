@@ -197,7 +197,7 @@ function get_activity()
 end
 
 
-function get_exercise_tcx()
+function get_exercises_tcx()
     conn = get_conn()
     query = """
         SELECT 
@@ -287,7 +287,7 @@ function get_total_calories()
 end
 
 
-function get_per_day()
+function get_food_per_day()
     conn = get_conn()
     query = """
         SELECT 

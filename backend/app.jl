@@ -67,8 +67,8 @@ function auth_middleware(handler)
     end
 end
 
-function get_table(req)
-    path = joinpath(STATIC_DIR, "table.html")
+function get_tcx_table(req)
+    path = joinpath(STATIC_DIR, "tcx_table.html")
     html_content = read(path, String)
 
     return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
@@ -96,8 +96,8 @@ function get_trips(req)
     HTTP.Response(200, get_headers(), JSON3.write(data))
 end
 
-function get_tcx(req)
-    data = Db.get_exercise_tcx()
+function get_tcx_list(req)
+    data = Db.get_exercises_tcx()
     HTTP.Response(200, get_headers(), JSON3.write(data))
 end
 
@@ -105,9 +105,21 @@ function get_dashboard(req)
     @info "GOT Request"
     path = joinpath(STATIC_DIR, "index.html")
     html_content = read(path, String)
-
     return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
 end
+
+function get_food_table(req)
+    path = joinpath(STATIC_DIR, "food_table.html")
+    html_content = read(path, String)
+    return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
+end
+
+
+function get_daily_food(req)
+    data = Db.get_food_per_day()
+    HTTP.Response(200, get_headers(), JSON3.write(data))
+end
+
 
 function get_activity(req)
     df = Db.get_activity()
@@ -162,10 +174,12 @@ HTTP.register!(ROUTER, "GET", "/activity", get_activity)
 HTTP.register!(ROUTER, "GET", "/calories", get_calories)
 HTTP.register!(ROUTER, "GET", "/dashboard", get_dashboard)
 HTTP.register!(ROUTER, "GET", "/map", get_map)
-HTTP.register!(ROUTER, "GET", "/table", get_table)
+HTTP.register!(ROUTER, "GET", "/tcx_table", get_tcx_table)
 HTTP.register!(ROUTER, "GET", "/trip", get_trip)
 HTTP.register!(ROUTER, "GET", "/trips", get_trips)
-HTTP.register!(ROUTER, "GET", "/tcx", get_tcx)
+HTTP.register!(ROUTER, "GET", "/tcx", get_tcx_list)
+HTTP.register!(ROUTER, "GET", "/food_table", get_food_table)
+HTTP.register!(ROUTER, "GET", "/food_list", get_daily_food)
 HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
 
 

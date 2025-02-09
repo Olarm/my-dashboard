@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8" />
+    <script 
+      src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.6.20/fetch.min.js" 
+      integrity="sha512-5vzl35V/cPSXliPbZtxHY0Q6cfYFd2Qld79+d7wLPbOxnKeCHH/LmlMD8aYl0ZN5VZPFM2FnKiAjoNJ2k3vrEg==" 
+      crossorigin="anonymous" 
+      referrerpolicy="no-referrer"
+      type="module"
+    ></script>
+
+    <script src="static/table.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="static/style.css">
+
+</head>
+
+<body>
+
+
+
+</body>
+
+<script>
+
+async function getData(url) {
+  try {
+    const options = { method: 'GET' };
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+async function getTCXData() {
+    const data = await getData("http://127.0.0.1:8080/food_list");
+    console.log(data);
+    tableCreate(data);
+
+}
+
+async function initialize() {
+    await getTCXData();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initialize();
+});
+
+</script>
+
+</html>
