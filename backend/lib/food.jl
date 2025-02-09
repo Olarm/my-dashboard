@@ -16,7 +16,7 @@ end
 
 
 function calories_in_out()
-    food = disallowmissing(Db.get_per_day())
+    food = disallowmissing(Db.get_food_per_day())
     food[!, "calories in"] = food.calories
     activity = dropmissing(Db.get_activity())
     activity[!, "calories out"] = activity.kilocalories
