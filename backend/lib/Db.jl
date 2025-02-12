@@ -268,11 +268,20 @@ function get_recharge()
 end
 
 
-function get_food()
+function get_food(ts_from, ts_to)
     conn = get_conn()
-    query = "select f.*, c.amount, c.dateeaten from consumed c left join food f on f.id = c.food order by c.dateeaten;"
-    df = execute(conn, query) |> DataFrame
-    df = coalesce.(df, 0.0)
+    query = """
+        SELECT 
+            f.calories, 
+            c.amount, 
+            c.dateeaten 
+        FROM consumed c 
+        LEFT JOIN food f 
+        ON f.id = c.food
+        WHERE c.dateeaten between $(1) AND $(2)
+        ORDER BY c.dateeaten;
+    """
+    df = execute(conn, query, [from, to]) |> DataFrame
     close(conn)
     return df
 end
@@ -469,6 +478,34 @@ function get_eat_sleep_score()
     df = execute(conn, query) |> DataFrame
     close(conn)
     combine(groupby(df, :date), :eat_sleep_score => sum => :daily_eat_sleep_score)
+end
+
+
+function get_sleep_quality()
+    q = """
+        SELECT 
+            DISTINCT sd.date, 
+            saa.tracking_start, 
+            saa.tracking_end, 
+            saa.snore, 
+            saa.rating, 
+            sd.nose_magnet,
+            s.sleep_charge,
+            s.sleep_start_time sleep_start,
+            s.sleep_end_time sleep_end,
+            s.sleep_score,
+            s.sleep_rating 
+        FROM sleep_as_android saa 
+        INNER JOIN sleep_data sd 
+            ON sd.date = date(saa.tracking_end) 
+        LEFT JOIN sleep s
+            ON s.date = sd.date
+        ORDER BY sd.date desc;
+    """
+    conn = get_conn()
+    df = execute(conn, q) |> DataFrame
+    close(conn)
+    return df
 end
 
 end
