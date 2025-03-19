@@ -32,7 +32,8 @@ function match_extend(path, content_html)
         path = joinpath(STATIC_DIR, extends.captures[1])
         base_html = read(path, String)
         html = render_template(base_html, content_html)
-        return (ok=true, html=html)
+        return match_extend(path, html)
+        #return (ok=true, html=html)
     else
         return (ok=true, html=content_html)
     end
