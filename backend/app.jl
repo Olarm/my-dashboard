@@ -6,6 +6,7 @@ export STATIC_DIR
 
 const STATIC_DIR = joinpath(@__DIR__, "frontend")
 
+include("lib/template.jl")
 include("lib/Db.jl")
 include("lib/food.jl")
 include("lib/auth.jl")
