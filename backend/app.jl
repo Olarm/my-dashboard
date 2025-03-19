@@ -191,7 +191,7 @@ HTTP.register!(ROUTER, "GET", "/food_list", get_daily_food)
 HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
 
 # Auth
-HTTP.register!(ROUTER, "GET", "/auth/login", Auth.login_page)
+HTTP.register!(ROUTER, "GET", "/login", Auth.login_page)
 
 
 server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, 8080)
