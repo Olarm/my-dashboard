@@ -1,22 +1,23 @@
 module App
+
 using HTTP, JSON3, StructTypes, LibPQ, Sockets, Tables
+
+export STATIC_DIR
+
+const STATIC_DIR = joinpath(@__DIR__, "frontend")
 
 include("lib/Db.jl")
 include("lib/food.jl")
+include("lib/auth.jl")
 
 #using Main.SleepAnalysis
 using .Db
 using .Food
+import .Auth
 #using Main.StatisticAnalysis
 
 
-const STATIC_DIR = joinpath(@__DIR__, "frontend")
 
-
-function parse_auth(req)
-    @info req
-    return true
-end
 
 function get_headers()
     return Dict(
@@ -50,18 +51,20 @@ function JSON_middleware(handler)
     end
 end
 
-# authentication middleware to ensure property security
+function parse_auth(req)
+    @info req
+    return true
+end
+
 function auth_middleware(handler)
     @info "auth middleware"
     return function(req)
         ident = parse_auth(req)
         if ident === nothing
-            # failed to security authentication
             return HTTP.Response(401, "unauthorized")
         else
             # store parsed identity in request context for handler usage
             req.context[:auth] = ident
-            # pass request on to handler function for further processing
             return handler(req)
         end
     end
@@ -165,6 +168,11 @@ function serve_static_file(req::HTTP.Request)
     end
 end
 
+function my_middleware(handler)
+    return function(req)
+        return handler(req)
+    end
+end
 
 initialize()
 
@@ -182,9 +190,11 @@ HTTP.register!(ROUTER, "GET", "/food_table", get_food_table)
 HTTP.register!(ROUTER, "GET", "/food_list", get_daily_food)
 HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
 
+# Auth
+HTTP.register!(ROUTER, "GET", "/auth/login", Auth.login_page)
 
-#HTTP.serve(ROUTER |> auth_middleware, Sockets.localhost, 8080)
-HTTP.serve(ROUTER, Sockets.localhost, 8080)
 
+server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, 8080)
+#HTTP.serve(ROUTER, Sockets.localhost, 8080)
 
 end
