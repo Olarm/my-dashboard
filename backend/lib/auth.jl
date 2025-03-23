@@ -1,8 +1,8 @@
 module Auth
 
-using HTTP, JSON3, LibPQ
+using HTTP, JSON3, LibPQ, URIs
 
-using ..App: STATIC_DIR
+using ..App: STATIC_DIR, get_dashboard
 using ..Templates: wrap
 
 export
@@ -11,6 +11,7 @@ export
 
 
 function login_page(req::HTTP.Request)
+    @info "login page"
     html_path = joinpath(STATIC_DIR, "auth/login.html")
     wrap_return = wrap(html_path)
     if wrap_return.ok
@@ -20,8 +21,16 @@ function login_page(req::HTTP.Request)
     return HTTP.Response(501)
 end
 
-function authenticate()
-    return HTTP.Response(200)
+function authenticate(req::HTTP.Request)
+    @info "authentication"
+    data = JSON3.read(String(req.body))
+    @info data
+    #uri = URIs.URI(req.target)
+    #req.target = ""
+    #query_params = URIs.queryparams(uri)
+    #@info query_params
+    #return HTTP.Response(200)
+    return get_dashboard(req)
 end
 
 

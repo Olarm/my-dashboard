@@ -2,19 +2,19 @@ module App
 
 using HTTP, JSON3, StructTypes, LibPQ, Sockets, Tables
 
-export STATIC_DIR
+export 
+    STATIC_DIR,
+    get_dashboard
 
 const STATIC_DIR = joinpath(@__DIR__, "frontend")
 
 include("lib/template.jl")
 include("lib/Db.jl")
 include("lib/food.jl")
-include("lib/auth.jl")
 
 #using Main.SleepAnalysis
 using .Db
 using .Food
-import .Auth
 #using Main.StatisticAnalysis
 
 
@@ -53,7 +53,6 @@ function JSON_middleware(handler)
 end
 
 function parse_auth(req)
-    @info req
     return true
 end
 
@@ -175,6 +174,9 @@ function my_middleware(handler)
     end
 end
 
+include("lib/auth.jl")
+import .Auth
+
 initialize()
 
 const ROUTER = HTTP.Router()
@@ -193,6 +195,7 @@ HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
 
 # Auth
 HTTP.register!(ROUTER, "GET", "/login", Auth.login_page)
+HTTP.register!(ROUTER, "POST", "/authenticate", Auth.authenticate)
 
 
 server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, 8080)

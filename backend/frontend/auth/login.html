@@ -1,5 +1,44 @@
 {% extends 'auth/auth.html' %}
 
 {% begin content %}
-    <h2>HI</h2>
+<h2>Welcome</h2>
+<form id="authenticate" action="" method="get" class="form-example">
+  <div class="form-example">
+    <label for="name">Enter your name: </label>
+    <br>
+    <input type="text" name="name" id="name" required />
+  </div>
+  <div class="form-example">
+    <label for="password">Enter your password: </label>
+    <br>
+    <input type="password" name="password" id="password" required />
+  </div>
+  <div class="form-example">
+    <input type="submit" value="Login!"/>
+  </div>
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("authenticate").addEventListener("submit", async function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const formData = new FormData(this); // Capture form data
+        const jsonData = JSON.stringify(Object.fromEntries(formData));
+        const response = await fetch("authenticate", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: jsonData
+        });
+        if (response.ok) {
+            console.log("Form submitted successfully");
+        } else {
+            console.error("Error submitting form");
+        }
+    });
+});
+
+</script>
 {% end content %}
