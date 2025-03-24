@@ -33,7 +33,9 @@ document.addEventListener("DOMContentLoaded", function () {
           body: jsonData
         });
         if (response.ok) {
-            console.log("Form submitted successfully");
+            const data = await response.json();
+            localStorage.setItem("token", data.token); // Store token
+            console.log("Login successful, token stored.");
         } else {
             console.error("Error submitting form");
         }

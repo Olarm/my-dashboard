@@ -1,6 +1,7 @@
 [deps]
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+JSONWebTokens = "9b8beb19-0777-58c6-920b-28f749fee4d3"
 LibPQ = "194296ae-ab2e-5f79-8cd4-7183a0a5a0d1"
 MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
 Parsers = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
