@@ -106,6 +106,12 @@ end
 
 function get_dashboard(req)
     @info "GOT Request"
+    auth = Auth.verify_jwt_token(req)
+    if !auth.ok
+        @info auth
+        return Auth.login_page(req)
+    end
+
     path = joinpath(STATIC_DIR, "index.html")
     html_content = read(path, String)
     return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)

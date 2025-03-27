@@ -25,18 +25,18 @@ function generate_jwt(name::String, sub::String)
 end
 
 function verify_jwt_token(req::HTTP.Request)
-    auth_header = get(HTTP.header(req, "Authorization"), "")
+    auth_header = HTTP.header(req, "Authorization")
 
     if startswith(auth_header, "Bearer ")
         token = split(auth_header, " ")[2]
         try
             payload = JWTs.decode(token, SECRET_KEY, :HS256)
-            return payload  # Token is valid
+            return (ok=true, payload=payload)
         catch
-            return nothing  # Invalid token
+            return (ok=false, payload=nothing)
         end
     end
-    return nothing  # No token provided
+    return (ok=false, payload=nothing)
 end
 
 function login_page(req::HTTP.Request)
