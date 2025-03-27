@@ -8,7 +8,8 @@ using ..Templates: wrap
 
 export
     authenticate,
-    login_page
+    login_page,
+    verify_jwt_token
 
 
 const SECRET_KEY = "your_secret_key"  # Keep this secret
@@ -23,6 +24,20 @@ function generate_jwt(name::String, sub::String)
     return JSONWebTokens.encode(encoding, payload)
 end
 
+function verify_jwt_token(req::HTTP.Request)
+    auth_header = get(HTTP.header(req, "Authorization"), "")
+
+    if startswith(auth_header, "Bearer ")
+        token = split(auth_header, " ")[2]
+        try
+            payload = JWTs.decode(token, SECRET_KEY, :HS256)
+            return payload  # Token is valid
+        catch
+            return nothing  # Invalid token
+        end
+    end
+    return nothing  # No token provided
+end
 
 function login_page(req::HTTP.Request)
     @info "login page"
@@ -40,11 +55,12 @@ function authenticate(req::HTTP.Request)
     data = JSON3.read(String(req.body))
     name = get(data, "name", "")
     password = get(data, "password", "")
+    redirect_url = "/dashboard"
 
     if name == "admin" && password == "secret"
         token = generate_jwt(name, "1")
         @info "Login successful for user: $(name)"
-        return HTTP.Response(200, JSON3.write(Dict("token" => token)))
+        return HTTP.Response(200, JSON3.write(Dict("token" => token, "redirect" => redirect_url)))
     else
         @info "Login failed for user: $(name)"
         return HTTP.Response(401, JSON3.write(Dict("error" => "Invalid credentials")))

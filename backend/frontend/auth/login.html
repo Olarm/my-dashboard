@@ -36,6 +36,23 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
             localStorage.setItem("token", data.token); // Store token
             console.log("Login successful, token stored.");
+            
+            window.location.href = data.redirect;            
+
+            //const dashboardResponse = await fetch(data.redirect, {
+            //    method: "GET",
+            //    headers: { "Authorization": "Bearer " + data.token }
+            //});
+
+            //if (dashboardResponse.ok) {
+            //    const content = await dashboardResponse.text();
+            //    document.open();
+            //    document.write(content);
+            //    document.close();
+            //} else {
+            //    console.error("Error loading dashboard");
+            //    alert("Access denied");
+            //}    
         } else {
             console.error("Error submitting form");
         }
