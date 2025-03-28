@@ -35,7 +35,11 @@ function verify_jwt_token(req::HTTP.Request)
         try
             encoding = JSONWebTokens.HS256(SECRET_KEY)
             payload = JSONWebTokens.decode(encoding, token)
-            return (ok=true, payload=payload)
+            if time() > (get(payload, "iat", 0) + 3600)
+                return (ok=false, payload=nothing)
+            else
+                return (ok=true, payload=payload)
+            end
         catch e
             return (ok=false, payload=nothing)
         end
