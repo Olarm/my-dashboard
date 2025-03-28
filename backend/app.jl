@@ -87,14 +87,12 @@ end
 
 function get_trip(req)
     data = get_exercise()
-    @info "got exercise"
 
     HTTP.Response(200, get_headers(), data)
 end
 
 function get_trips(req)
     data = get_exercises()
-    @info "got exercises"
 
     HTTP.Response(200, get_headers(), JSON3.write(data))
 end
@@ -105,10 +103,8 @@ function get_tcx_list(req)
 end
 
 function get_dashboard(req)
-    @info "GOT Request"
     auth = Auth.verify_jwt_token(req)
     if !auth.ok
-        @info auth
         return Auth.login_page(req)
     end
 
@@ -137,7 +133,6 @@ function get_activity(req)
 end
 
 function get_calories(req)
-    @info "getting data"
     df = Food.calories_in_out()
     data = Tables.columntable(df)
     HTTP.Response(200, get_headers(), JSON3.write(data))

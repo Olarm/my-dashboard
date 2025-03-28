@@ -25,20 +25,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const formData = new FormData(this); // Capture form data
         const jsonData = JSON.stringify(Object.fromEntries(formData));
-        const response = await fetch("authenticate", {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json"
-          },
-          body: jsonData
-        });
-        if (response.ok) {
-            const data = await response.json();
-            localStorage.setItem("token", data.token); // Store token
-            console.log("Login successful, token stored.");
-            window.location.href = data.redirect;            
-        } else {
-            console.error("Error submitting form");
+        //const response = await fetch("authenticate", {
+        //  method: "POST",
+        //  headers: {
+        //      "Content-Type": "application/json"
+        //  },
+        //  body: jsonData
+        //});
+        //if (response.ok) {
+        //    const data = await response.json();
+        //    localStorage.setItem("token", data.token); // Store token
+        //    console.log("Login successful, token stored.");
+        //    //window.location.href = data.redirect;            
+        //} else {
+        //    console.error("Error submitting form");
+        //}
+        
+        try {
+            const response = await fetch("authenticate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: jsonData,
+                credentials: "include"
+            });
+            console.log(response)
+            if (response.redirected) {
+                // Follow the redirect
+                window.location.href = response.url;
+                //console.log("redirect)");
+            } else if (response.ok) {
+                console.log("Login successful, redirecting.");
+                // The server will handle the redirect and set the token in a cookie
+            } else {
+                console.error("Error submitting form");
+            }
+        } catch (error) {
+            console.error("Network error:", error);
         }
     });
 });

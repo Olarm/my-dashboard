@@ -21,26 +21,30 @@ function generate_jwt(name::String, sub::String)
         "iat" => time()
     )
     encoding = JSONWebTokens.HS256(SECRET_KEY)
-    return JSONWebTokens.encode(encoding, payload)
+    token = JSONWebTokens.encode(encoding, payload)
+    return token
 end
 
-function verify_jwt_token(req::HTTP.Request)
-    auth_header = HTTP.header(req, "Authorization")
 
-    if startswith(auth_header, "Bearer ")
-        token = split(auth_header, " ")[2]
+function verify_jwt_token(req::HTTP.Request)
+    cookie_header = HTTP.header(req, "Cookie")
+
+    if occursin("token=", cookie_header)
+        token = split(cookie_header, "token=")[2]
+        token = split(token, ";")[1]  # Remove any additional cookie attributes
         try
-            payload = JWTs.decode(token, SECRET_KEY, :HS256)
+            encoding = JSONWebTokens.HS256(SECRET_KEY)
+            payload = JSONWebTokens.decode(encoding, token)
             return (ok=true, payload=payload)
-        catch
+        catch e
             return (ok=false, payload=nothing)
         end
     end
     return (ok=false, payload=nothing)
 end
 
+
 function login_page(req::HTTP.Request)
-    @info "login page"
     html_path = joinpath(STATIC_DIR, "auth/login.html")
     wrap_return = wrap(html_path)
     if wrap_return.ok
@@ -51,7 +55,6 @@ function login_page(req::HTTP.Request)
 end
 
 function authenticate(req::HTTP.Request)
-    @info "authentication"
     data = JSON3.read(String(req.body))
     name = get(data, "name", "")
     password = get(data, "password", "")
@@ -59,19 +62,10 @@ function authenticate(req::HTTP.Request)
 
     if name == "admin" && password == "secret"
         token = generate_jwt(name, "1")
-        @info "Login successful for user: $(name)"
-        return HTTP.Response(200, JSON3.write(Dict("token" => token, "redirect" => redirect_url)))
+        return HTTP.Response(302, ["Location" => "/dashboard", "Set-Cookie" => "token=$token; HttpOnly; Secure; Path=/; SameSite=Lax"])
     else
-        @info "Login failed for user: $(name)"
         return HTTP.Response(401, JSON3.write(Dict("error" => "Invalid credentials")))
     end
-
-    #uri = URIs.URI(req.target)
-    #req.target = ""
-    #query_params = URIs.queryparams(uri)
-    #@info query_params
-    #return HTTP.Response(200)
-    return get_dashboard(req)
 end
 
 
