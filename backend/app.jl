@@ -4,7 +4,8 @@ using HTTP, JSON3, StructTypes, LibPQ, Sockets, Tables
 
 export 
     STATIC_DIR,
-    get_dashboard
+    get_dashboard,
+    ROUTER
 
 const STATIC_DIR = joinpath(@__DIR__, "frontend")
 
@@ -193,6 +194,7 @@ HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
 HTTP.register!(ROUTER, "GET", "/login", Auth.login_page)
 HTTP.register!(ROUTER, "POST", "/authenticate", Auth.authenticate)
 
+include("lib/sleep.jl")
 
 server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, 8080)
 #HTTP.serve(ROUTER, Sockets.localhost, 8080)
