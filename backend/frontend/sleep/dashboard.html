@@ -1,5 +1,46 @@
 {% extends 'head.html' %}
 
 {% begin content %}
-hello
+<script src="/static/table.js"></script>
+
+<body>
+
+
+
+</body>
+
+<script>
+async function getData(url) {
+  try {
+    const options = { method: 'GET' };
+    const response = await fetch(url, options);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+async function getSleepData() {
+    const data = await getData("http://127.0.0.1:8080/sleep/list");
+    console.log(data);
+    createGenericDateTable(data, true);
+
+}
+
+async function initialize() {
+    await getSleepData();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initialize();
+});
+
+</script>
 {% end content %}

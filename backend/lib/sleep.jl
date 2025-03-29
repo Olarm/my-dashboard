@@ -1,6 +1,6 @@
 module Sleep
 
-using HTTP, JSON3, Dates
+using HTTP, JSON3, Dates, LibPQ, DataFrames
 using ..Templates
 import ..App
 import ..Db

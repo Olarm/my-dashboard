@@ -41,7 +41,7 @@ async function getData(url) {
   }
 }
 
-async function getTCXData() {
+async function getData() {
     const data = await getData("http://127.0.0.1:8080/tcx");
     console.log(data);
     tableCreate(data);
@@ -49,7 +49,7 @@ async function getTCXData() {
 }
 
 async function initialize() {
-    await getTCXData();
+    await getData();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
