@@ -160,7 +160,7 @@ function serve_static_file(req::HTTP.Request)
         content = read(file_path)
         return HTTP.Response(200, Dict("Content-Type" => mime_type), content)
     else
-        @warn "File not found: $(file_path)"
+        @error "File not found: $(file_path)"
         return HTTP.Response(404, "File not found.")
     end
 end
