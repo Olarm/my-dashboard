@@ -1,15 +1,14 @@
-{% extends 'head.html' %}
+{% extend 'head.html' %}
 
 {% begin content %}
-<script src="/static/table.js"></script>
+<script> src="/static/form.js"</script>
 
 <body>
-
-
 
 </body>
 
 <script>
+
 async function getData(url) {
   try {
     const options = { method: 'GET' };
@@ -27,15 +26,10 @@ async function getData(url) {
   }
 }
 
-async function getSleepData() {
-    const data = await getData("http://127.0.0.1:8080/sleep/list");
+async function getSleepFormData() {
+    const data = await getData("http://127.0.0.1:8080/sleep/form");
     console.log(data);
-    tableCreate(data);
-
-}
-
-async function initialize() {
-    await getSleepData();
+    createForm(data);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -43,4 +37,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 </script>
+
 {% end content %}
