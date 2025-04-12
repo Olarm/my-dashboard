@@ -1,11 +1,11 @@
-function createForm(pairs) {
+function createForm(form_data) {
     // Create a form element
     const form = document.createElement('form');
 
     // Iterate over the pairs to create input elements
     pairs.forEach(pair => {
         const name = pair.name;
-        const dataType = pair.dataType;
+        const dataType = pair.data_type;
 
         // Create a label for the input field
         const label = document.createElement('label');
@@ -70,4 +70,4 @@ const pairs = [
     { name: 'Subscribe', dataType: 'checkbox' }
 ];
 
-createForm(pairs);
+//createForm(pairs);

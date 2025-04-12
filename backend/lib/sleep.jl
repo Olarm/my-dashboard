@@ -44,8 +44,17 @@ function get_sleep_form(req::HTTP.Request)
         FROM INFORMATION_SCHEMA.COLUMNS 
         WHERE table_name = 'sleep_data';
     """
-    df = execute(conn, query) |> DataFrame
-    HTTP.Response(200, App.get_headers(), JSON3.write(df))
+    result = execute(conn, query)
+    data = []
+    for row in result
+        row_dict = Dict{String,Any}()
+        for (i, col) in enumerate(LibPQ.column_names(result))
+            row_dict[col] = row[i]
+        end
+        push!(data, row_dict)
+    end
+
+    HTTP.Response(200, App.get_headers(), JSON3.write(data))
 end
 
 function create_sleep_data(req::HTTP.Request)
@@ -84,6 +93,7 @@ end
 HTTP.register!(App.ROUTER, "GET", "/sleep/dashboard", serve_sleep_dashboard)
 HTTP.register!(App.ROUTER, "GET", "/sleep/list", get_sleep_list)
 HTTP.register!(App.ROUTER, "POST", "/sleep/create", create_sleep_data)
+HTTP.register!(App.ROUTER, "GET", "/sleep/form-data", get_sleep_form)
 HTTP.register!(App.ROUTER, "GET", "/sleep/form", serve_sleep_form)
 @info "sleep added to router"
 

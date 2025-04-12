@@ -27,9 +27,13 @@ async function getData(url) {
 }
 
 async function getSleepFormData() {
-    const data = await getData("http://127.0.0.1:8080/sleep/form");
+    const data = await getData("http://127.0.0.1:8080/sleep/form-data");
     console.log(data);
     createForm(data);
+}
+
+async function initialize() {
+    await getSleepFormData();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
