@@ -35,7 +35,15 @@ end
 
 function get_sleep_form(req::HTTP.Request)
     conn = Db.get_conn()
-    query = """SELECT * from sleep_data order by date desc;"""
+    query = """
+        SELECT 
+            column_name name, 
+            data_type,
+            column_default default, 
+            is_nullable
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE table_name = 'sleep_data';
+    """
     df = execute(conn, query) |> DataFrame
     HTTP.Response(200, App.get_headers(), JSON3.write(df))
 end
@@ -72,9 +80,11 @@ function serve_sleep_form(req::HTTP.Request)
     return HTTP.Response(501)
 end
 
+
 HTTP.register!(App.ROUTER, "GET", "/sleep/dashboard", serve_sleep_dashboard)
 HTTP.register!(App.ROUTER, "GET", "/sleep/list", get_sleep_list)
 HTTP.register!(App.ROUTER, "POST", "/sleep/create", create_sleep_data)
+HTTP.register!(App.ROUTER, "GET", "/sleep/form", serve_sleep_form)
 @info "sleep added to router"
 
 end
