@@ -40,9 +40,12 @@ async function handleFormSubmit(event) {
     try {
       const response = await fetch("/sleep/create", {
         method: "POST",
-        body: formData,
+          headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formValues),
       });
-      console.log(response.json());
+      console.log(response);
     } catch (e) {
       console.error(e);
     }

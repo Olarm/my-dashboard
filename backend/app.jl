@@ -1,6 +1,6 @@
 module App
 
-using HTTP, JSON3, StructTypes, LibPQ, Sockets, Tables
+using HTTP, JSON3, StructTypes, LibPQ, Sockets, Tables, TOML
 
 export 
     STATIC_DIR,
@@ -20,6 +20,11 @@ using .Food
 
 
 
+function get_config()
+    open("config.toml", "r") do io
+        return TOML.parse(io)
+    end
+end
 
 function get_headers()
     return Dict(
@@ -196,7 +201,14 @@ HTTP.register!(ROUTER, "POST", "/authenticate", Auth.authenticate)
 
 include("lib/sleep.jl")
 
-server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, 8080)
+config = get_config()
+
+server = nothing
+if config["environment"] == "local"
+    server = HTTP.serve!(ROUTER, Sockets.localhost, 8080)
+else
+    server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, 8080)
+end
 #HTTP.serve(ROUTER, Sockets.localhost, 8080)
 
 end

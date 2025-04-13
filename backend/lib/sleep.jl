@@ -1,6 +1,6 @@
 module Sleep
 
-using HTTP, JSON3, Dates, LibPQ, DataFrames
+using HTTP, JSON3, Dates, LibPQ, DataFrames, Dates
 using ..Templates
 import ..App
 import ..Db
@@ -14,6 +14,13 @@ struct SleepData
     sleep_solo::Bool
     mouth_tape::Bool
     nose_magnet::Bool
+    nose_magnet_off::Bool
+
+    #function SleepData(data)
+
+    #    date = Date(data["date"], "yyyy-mm-dd")
+    #    @info date
+    #end
 end
 
 function serve_sleep_dashboard(req::HTTP.Request)
@@ -59,9 +66,11 @@ end
 
 function create_sleep_data(req::HTTP.Request)
     @info "create sleep"
-    @info req.body
+    body = JSON3.read(String(req.body))
+    @info body
+
     data = try
-        JSON3.read(req.body)
+        JSON3.read(body, SleepData)
     catch e
         if e isa MethodError
             return HTTP.Response(400, "bad input")
@@ -71,6 +80,7 @@ function create_sleep_data(req::HTTP.Request)
     end
 
     @info data
+    return HTTP.Response(200)
 end
 
 function get_missing_sleep_dates(req::HTTP.Request)
