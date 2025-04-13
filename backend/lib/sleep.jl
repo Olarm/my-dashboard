@@ -59,6 +59,7 @@ end
 
 function create_sleep_data(req::HTTP.Request)
     @info "create sleep"
+    @info req.body
     data = try
         JSON3.read(req.body)
     catch e

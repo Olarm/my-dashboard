@@ -1,9 +1,17 @@
-function createForm(form_data) {
+function createForm(formData, formId, onSubmitCallback) {
     // Create a form element
     const form = document.createElement('form');
+    form.id = formId;
+
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        if (onSubmitCallback) {
+            await onSubmitCallback(event); // Call the provided callback function
+        }
+    });
 
     // Iterate over the pairs to create input elements
-    pairs.forEach(pair => {
+    formData.forEach(pair => {
         const name = pair.name;
         const dataType = pair.data_type;
 
@@ -30,7 +38,7 @@ function createForm(form_data) {
                 input = document.createElement('input');
                 input.type = 'date';
                 break;
-            case 'checkbox':
+            case 'boolean':
                 input = document.createElement('input');
                 input.type = 'checkbox';
                 break;

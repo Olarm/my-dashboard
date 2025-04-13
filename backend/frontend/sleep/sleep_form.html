@@ -5,6 +5,7 @@
 
 <body>
 
+
 </body>
 
 <script>
@@ -26,10 +27,31 @@ async function getData(url) {
   }
 }
 
+async function handleFormSubmit(event) {
+    const form = event.target;
+    const formData = new FormData(form);
+
+    const formValues = {};
+    formData.forEach((value, key) => {
+        formValues[key] = value;
+    });
+
+    console.log('Form submitted:', formValues);
+    try {
+      const response = await fetch("/sleep/create", {
+        method: "POST",
+        body: formData,
+      });
+      console.log(response.json());
+    } catch (e) {
+      console.error(e);
+    }
+}
+
 async function getSleepFormData() {
     const data = await getData("http://127.0.0.1:8080/sleep/form-data");
     console.log(data);
-    createForm(data);
+    createForm(data, "sleepForm", handleFormSubmit);
 }
 
 async function initialize() {
@@ -39,6 +61,7 @@ async function initialize() {
 document.addEventListener('DOMContentLoaded', function() {
     initialize();
 });
+
 
 </script>
 
