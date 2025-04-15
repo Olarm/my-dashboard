@@ -10,6 +10,7 @@ body {
   background-color: var(--c1);
   color: #EEEEEE;
   font-family: 'Courier New', monospace; 
+  padding: 20px;
 }
 
 #scatterPlotContainer {

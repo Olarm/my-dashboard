@@ -58,9 +58,10 @@ function createForm(formData, formId, onSubmitCallback) {
     });
 
     // Create a submit button
-    const submitButton = document.createElement('input');
+    const submitButton = document.createElement('button');
     submitButton.type = 'submit';
-    submitButton.value = 'Submit';
+    //submitButton.value = 'Submit';
+    submitButton.textContent = 'Submit';
 
     // Append the submit button to the form
     form.appendChild(submitButton);

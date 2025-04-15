@@ -16,11 +16,11 @@ struct SleepData
     nose_magnet::Bool
     nose_magnet_off::Bool
 
-    #function SleepData(data)
+    function SleepData(data)
 
-    #    date = Date(data["date"], "yyyy-mm-dd")
-    #    @info date
-    #end
+        date = Date(data["date"], "yyyy-mm-dd")
+        @info date
+    end
 end
 
 function serve_sleep_dashboard(req::HTTP.Request)
