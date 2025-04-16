@@ -1,82 +1,123 @@
-function createForm(formData, formId, onSubmitCallback) {
-    // Create a form element
+function createForm(formData, formId, createUrl, onSubmitCallback) {
     const form = document.createElement('form');
     form.id = formId;
-
     form.addEventListener('submit', async function(event) {
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         if (onSubmitCallback) {
-            await onSubmitCallback(event); // Call the provided callback function
+            await onSubmitCallback(event, createUrl);
         }
     });
-
-    // Iterate over the pairs to create input elements
     formData.forEach(pair => {
         const name = pair.name;
         const dataType = pair.data_type;
-
-        // Create a label for the input field
         const label = document.createElement('label');
         label.textContent = name + ': ';
-
-        // Create an input element based on the data type
+        
         let input;
+        
         switch (dataType) {
             case 'text':
                 input = document.createElement('input');
                 input.type = 'text';
+                form.appendChild(label);
+                form.appendChild(input);
                 break;
             case 'number':
                 input = document.createElement('input');
                 input.type = 'number';
+                form.appendChild(label);
+                form.appendChild(input);
                 break;
             case 'email':
                 input = document.createElement('input');
                 input.type = 'email';
+                form.appendChild(label);
+                form.appendChild(input);
                 break;
             case 'date':
                 input = document.createElement('input');
                 input.type = 'date';
+                form.appendChild(label);
+                form.appendChild(input);
                 break;
             case 'boolean':
                 input = document.createElement('input');
                 input.type = 'checkbox';
+                form.appendChild(label);
+                form.appendChild(input);
+                break;
+            case 'radio':
+                if (pair.options && Array.isArray(pair.options)) {
+                    const radioGroup = document.createElement('div');
+                    radioGroup.className = 'radio-group';
+                    
+                    // Add the main label for the radio group
+                    radioGroup.appendChild(label);
+                    form.appendChild(radioGroup);
+                    
+                    // Create radio buttons for each option
+                    pair.options.forEach((option, index) => {
+                        const radioContainer = document.createElement('div');
+                        radioContainer.className = 'radio-option';
+                        
+                        // Create radio input
+                        const radioInput = document.createElement('input');
+                        radioInput.type = 'radio';
+                        radioInput.name = name;
+                        radioInput.id = `${name}_${index}`;
+                        radioInput.value = option.value || option;
+                        
+                        // If this is the first option or the option is marked as default, check it
+                        if (index === 0 || option.default) {
+                            radioInput.checked = true;
+                        }
+                        
+                        // Create label for this radio option
+                        const radioLabel = document.createElement('label');
+                        radioLabel.htmlFor = `${name}_${index}`;
+                        radioLabel.textContent = option.label || option;
+                        
+                        // Add radio button and its label to the container
+                        radioContainer.appendChild(radioInput);
+                        radioContainer.appendChild(radioLabel);
+                        radioGroup.appendChild(radioContainer);
+                    });
+                    
+                    // No need for separate input variable as we've added all radios to the form
+                    input = null;
+                } else {
+                    // Fallback if no options are provided
+                    input = document.createElement('input');
+                    input.type = 'text';
+                    form.appendChild(label);
+                    form.appendChild(input);
+                }
                 break;
             default:
                 input = document.createElement('input');
                 input.type = 'text';
+                form.appendChild(label);
+                form.appendChild(input);
                 break;
         }
-
-        // Set the name attribute of the input field
-        input.name = name;
-
-        // Append the label and input to the form
-        form.appendChild(label);
-        form.appendChild(input);
+        
+        // Set the name attribute of the input field if it exists
+        if (input) {
+            input.name = name;
+            // These appends have been moved into each case for better control
+        }
+        
         form.appendChild(document.createElement('br'));
     });
-
+    
     // Create a submit button
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
-    //submitButton.value = 'Submit';
     submitButton.textContent = 'Submit';
-
+    
     // Append the submit button to the form
     form.appendChild(submitButton);
-
+    
     // Append the form to the body or any other container
     document.body.appendChild(form);
 }
-
-// Example usage:
-const pairs = [
-    { name: 'Username', dataType: 'text' },
-    { name: 'Age', dataType: 'number' },
-    { name: 'Email', dataType: 'email' },
-    { name: 'Birthdate', dataType: 'date' },
-    { name: 'Subscribe', dataType: 'checkbox' }
-];
-
-//createForm(pairs);

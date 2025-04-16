@@ -18,7 +18,8 @@ export
 using LibPQ, DataFrames, JSON3, TOML, Dates
 
 include("users.jl")
-using .Users
+import .Users
+
 include("exercises.jl")
 
 function get_config()
@@ -44,7 +45,7 @@ end
 function initialize()
     @info "Initializing DB"
     conn = get_conn()
-    create_users_table(conn)
+    Users.create_users_table(conn)
     @info "Successfully initialized DB"
 end
 

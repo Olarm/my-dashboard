@@ -11,6 +11,7 @@ const STATIC_DIR = joinpath(@__DIR__, "frontend")
 
 include("lib/template.jl")
 include("lib/Db.jl")
+include("lib/nasalspray.jl")
 include("lib/food.jl")
 
 #using Main.SleepAnalysis
@@ -19,6 +20,7 @@ using .Food
 #using Main.StatisticAnalysis
 
 
+NasalSprays.create_tables()
 
 function get_config()
     open("config.toml", "r") do io
@@ -142,6 +144,16 @@ end
 function get_nasalspray(req)
     return HTTP.Response(200, "hello")
 end
+
+function serve_forms(req)
+    html_path = joinpath(App.STATIC_DIR, "forms.html")
+    wrap_return = wrap(html_path)
+    if wrap_return.ok
+        html_content = wrap_return.html
+        return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
+    end
+    return HTTP.Response(501)
+
 
 function get_mime_type(file_path::String)
     ext = splitext(file_path)[2]
