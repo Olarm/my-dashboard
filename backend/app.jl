@@ -147,13 +147,13 @@ end
 
 function serve_forms(req)
     html_path = joinpath(App.STATIC_DIR, "forms.html")
-    wrap_return = wrap(html_path)
+    wrap_return = Templates.wrap(html_path)
     if wrap_return.ok
         html_content = wrap_return.html
         return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
     end
     return HTTP.Response(501)
-
+end
 
 function get_mime_type(file_path::String)
     ext = splitext(file_path)[2]
@@ -195,6 +195,7 @@ initialize()
 
 const ROUTER = HTTP.Router()
 #HTTP.register!(ROUTER, "GET", "/api/nasalspray", get_nasalspray)
+HTTP.register!(ROUTER, "GET", "/forms", serve_forms)
 HTTP.register!(ROUTER, "GET", "/activity", get_activity)
 HTTP.register!(ROUTER, "GET", "/calories", get_calories)
 HTTP.register!(ROUTER, "GET", "/dashboard", get_dashboard)
