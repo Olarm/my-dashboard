@@ -1,4 +1,4 @@
-function createForm(formData, formId, createUrl, onSubmitCallback) {
+function createForm(formData, formId, createUrl, onSubmitCallback, containerId) {
     const form = document.createElement('form');
     form.id = formId;
     form.addEventListener('submit', async function(event) {
@@ -117,7 +117,16 @@ function createForm(formData, formId, createUrl, onSubmitCallback) {
     
     // Append the submit button to the form
     form.appendChild(submitButton);
-    
-    // Append the form to the body or any other container
-    document.body.appendChild(form);
+
+    if (containerId) {
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.appendChild(form);
+        } else {
+            console.warn(`Container with ID "${containerId}" not found. Appending form to document body instead.`);
+            document.body.appendChild(form);
+        }
+    } else {
+        document.body.appendChild(form);
+    }
 }
