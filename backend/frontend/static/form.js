@@ -110,12 +110,10 @@ function createForm(formData, formId, createUrl, onSubmitCallback, containerId) 
         form.appendChild(document.createElement('br'));
     });
     
-    // Create a submit button
     const submitButton = document.createElement('button');
     submitButton.type = 'submit';
     submitButton.textContent = 'Submit';
     
-    // Append the submit button to the form
     form.appendChild(submitButton);
 
     if (containerId) {

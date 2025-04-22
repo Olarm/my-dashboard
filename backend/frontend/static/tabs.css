@@ -36,3 +36,8 @@ input[type="radio"]:checked + label {
 #tab2:checked ~ .content2 {
     display: block;
 }
+
+#sleep_radio:checked ~ #sleep_form,
+#other_radio:checked ~ #other_form {
+    display: block;
+}

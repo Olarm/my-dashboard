@@ -6,6 +6,19 @@
 
 <body>
 
+  <div class="tabs"></div>
+      <!-- Radio buttons for tab toggling -->
+      <input type="radio" id="sleep_radio" name="tabs" checked>
+      <label for="sleep_radio" class="tab-label">Sleep</label>
+
+      <input type="radio" id="other_radio" name="tabs">
+      <label for="other_radio" class="tab-label">Something</label>
+
+  <div id="sleep_form" class="tab-content"></div>
+  <div id="other_form" class="tab-content"></div>
+
+
+</div>
 
 </body>
 
@@ -55,7 +68,7 @@ async function handleFormSubmit(event, createUrl) {
 async function getSleepFormData() {
     const data = await getData("http://127.0.0.1:8080/sleep/form-data");
     console.log(data);
-    createForm(data, "sleepForm", "/sleep/create", handleFormSubmit);
+    createForm(data, "sleepForm", "/sleep/create", handleFormSubmit, "sleep_form");
 }
 
 async function initialize() {
