@@ -17,9 +17,43 @@ struct SleepData
     nose_magnet_off::Bool
 
     function SleepData(data)
+        @info "Creating sleep data"
+        @info data
+        date_str = get(data, "date", nothing)
+        location = get(data, "location", nothing)
+        room = get(data, "location", nothing)
+        if date_str in [nothing, ""] || location in [nothing, ""] || room in [nothing, ""]
+            ret = "Missing required data for sleep data"
+            @error ret
+            return false
+        end
 
-        date = Date(data["date"], "yyyy-mm-dd")
-        @info date
+        twin_bed = get(data, "twin_bed", false)
+        sleep_solo = get(data, "sleep_solo", false)
+        mouth_tape = get(data, "mouth_tape", false)
+        nose_magnet = get(data, "nose_magnet", false)
+        nose_magnet_off = get(data, "nose_magnet_off", false)
+        date = Date(date_str, "yyyy-mm-dd")
+        
+        if date > today()
+            @error "Attempt to insert $date which is greater then $(today())"
+            return false
+        end
+
+        obj = new(
+            date,
+            location,
+            room,
+            twin_bed,
+            sleep_solo,
+            mouth_tape,
+            nose_magnet,
+            nose_magnet_off
+        )
+
+        @info obj
+
+        return true
     end
 end
 
@@ -65,13 +99,14 @@ function get_sleep_form(req::HTTP.Request)
 end
 
 function create_sleep_data(req::HTTP.Request)
-    @info "create sleep"
     body = JSON3.read(String(req.body))
-    @info body
 
-    data = try
-        JSON3.read(body, SleepData)
+    try
+        #@info JSON3.read(body, SleepData)
+        ok = SleepData(body)
+        @info ok
     catch e
+        @error "Caught: " e
         if e isa MethodError
             return HTTP.Response(400, "bad input")
         else
@@ -79,7 +114,6 @@ function create_sleep_data(req::HTTP.Request)
         end
     end
 
-    @info data
     return HTTP.Response(200)
 end
 
