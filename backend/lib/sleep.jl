@@ -6,6 +6,34 @@ import ..App
 import ..Db
 
 
+function insert_sleep_data(sleep_data::SleepData)
+    conn = db.get_conn()
+    q = """
+        INSERT INTO sleep_data (
+            date,
+            location,
+            room,
+            twin_bed,
+            sleep_solo,
+            mouth_tape,
+            nose_magnet,
+            nose_magnet_off
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    """
+    params = [
+        sleep_data.date,
+        sleep_data.location,
+        sleep_data.room,
+        sleep_data.twin_bed,
+        sleep_data.sleep_solo,
+        sleep_data.mouth_tape,
+        sleep_data.nose_magnet,
+        sleep_data.nose_magnet_off
+    ]
+    result = execute(conn, q, params)
+    return result
+end
+
 struct SleepData
     date::Date
     location::String    
@@ -29,12 +57,17 @@ struct SleepData
         end
 
         twin_bed = get(data, "twin_bed", false)
+        twin_bed = twin_bed == "on" ? true : false
         sleep_solo = get(data, "sleep_solo", false)
+        sleep_solo = sleep_solo == "on" ? true : false
         mouth_tape = get(data, "mouth_tape", false)
+        mouth_tape = mouth_tape == "on" ? true : false
         nose_magnet = get(data, "nose_magnet", false)
+        nose_magnet = nose_magnet == "on" ? true : false
         nose_magnet_off = get(data, "nose_magnet_off", false)
+        nose_magnet_off = nose_magnet_off == "on" ? true : false
+
         date = Date(date_str, "yyyy-mm-dd")
-        
         if date > today()
             @error "Attempt to insert $date which is greater then $(today())"
             return false
@@ -53,7 +86,14 @@ struct SleepData
 
         @info obj
 
-        return true
+        if result.status == LibPQ.ExecStatusType.COMMAND_OK
+            @info "User inserted successfully."
+            return true
+        else
+            @error "Failed to insert user: ", LibPQ.error_message(conn)
+            return false
+        end
+
     end
 end
 
