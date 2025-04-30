@@ -6,33 +6,6 @@ import ..App
 import ..Db
 
 
-function insert_sleep_data(sleep_data::SleepData)
-    conn = db.get_conn()
-    q = """
-        INSERT INTO sleep_data (
-            date,
-            location,
-            room,
-            twin_bed,
-            sleep_solo,
-            mouth_tape,
-            nose_magnet,
-            nose_magnet_off
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    """
-    params = [
-        sleep_data.date,
-        sleep_data.location,
-        sleep_data.room,
-        sleep_data.twin_bed,
-        sleep_data.sleep_solo,
-        sleep_data.mouth_tape,
-        sleep_data.nose_magnet,
-        sleep_data.nose_magnet_off
-    ]
-    result = execute(conn, q, params)
-    return result
-end
 
 struct SleepData
     date::Date
@@ -84,17 +57,43 @@ struct SleepData
             nose_magnet_off
         )
 
-        @info obj
-
-        if result.status == LibPQ.ExecStatusType.COMMAND_OK
-            @info "User inserted successfully."
-            return true
-        else
-            @error "Failed to insert user: ", LibPQ.error_message(conn)
-            return false
-        end
+        return obj
 
     end
+end
+
+function insert_sleep_data(sleep_data::SleepData)
+    conn = Db.get_conn()
+    q = """
+        INSERT INTO sleep_data (
+            date,
+            location,
+            room,
+            twin_bed,
+            sleep_solo,
+            mouth_tape,
+            nose_magnet,
+            nose_magnet_off
+        ) VALUES (
+         \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8)
+    """
+    params = [
+        sleep_data.date,
+        sleep_data.location,
+        sleep_data.room,
+        sleep_data.twin_bed,
+        sleep_data.sleep_solo,
+        sleep_data.mouth_tape,
+        sleep_data.nose_magnet,
+        sleep_data.nose_magnet_off
+    ]
+    result = try 
+        execute(conn, q, params)
+    catch e
+        @error e
+        return false
+    end
+    return true
 end
 
 function serve_sleep_dashboard(req::HTTP.Request)
@@ -140,20 +139,14 @@ end
 
 function create_sleep_data(req::HTTP.Request)
     body = JSON3.read(String(req.body))
-
-    try
-        #@info JSON3.read(body, SleepData)
-        ok = SleepData(body)
-        @info ok
-    catch e
-        @error "Caught: " e
-        if e isa MethodError
-            return HTTP.Response(400, "bad input")
-        else
-            return HTTP.Response(500)
-        end
+    obj = SleepData(body)
+    result = insert_sleep_data(obj)
+    if result == true
+        @info "Sleep data inserted successfully."
+    else
+        @error "Failed to insert sleep data."
+        return HTTP.Response(400, "bad input")
     end
-
     return HTTP.Response(200)
 end
 
