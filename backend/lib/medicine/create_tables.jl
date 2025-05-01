@@ -10,6 +10,7 @@ function create_ingredients_tables()
         );
     """
     execute(conn, q)
+
 end
 
 function create_measurement_units_table()
@@ -116,6 +117,7 @@ function create_medicines_table()
         )
     """
     execute(conn, q)
+    Db.insert_foreign_meta("medicine_medicine", ["name"])
 end
 
 
