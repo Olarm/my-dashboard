@@ -1,3 +1,54 @@
+function createSearchableDropdown(labelText, options, form) {
+    const label = document.createElement('label');
+    label.textContent = labelText + ': ';
+    form.appendChild(label);
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Type to search...';
+    form.appendChild(input);
+
+    const dropdownList = document.createElement('div');
+    dropdownList.className = 'dropdown-content';
+    form.appendChild(dropdownList);
+
+    input.addEventListener('input', function() {
+        const filter = input.value.toLowerCase();
+        dropdownList.innerHTML = '';
+
+        if (filter) {
+            const filteredOptions = options.filter(option =>
+                option[1].toLowerCase().includes(filter)
+            );
+
+            filteredOptions.forEach(option => {
+                const div = document.createElement('div');
+                div.textContent = option[1];
+                div.dataset.id = option[0]; // Store the ID in a data attribute
+                div.addEventListener('click', function() {
+                    input.value = option[1];
+                    input.dataset.selectedId = option[0]; // Store the selected ID in a data attribute
+                    dropdownList.innerHTML = '';
+                    dropdownList.style.display = 'none';
+                });
+                dropdownList.appendChild(div);
+            });
+
+            dropdownList.style.display = 'block';
+        } else {
+            dropdownList.style.display = 'none';
+        }
+    });
+
+    document.addEventListener('click', function(event) {
+        if (event.target !== input && !dropdownList.contains(event.target)) {
+            dropdownList.style.display = 'none';
+        }
+    });
+
+    return input;
+}
+
 function createForm(formData, formId, createUrl, onSubmitCallback, containerId) {
     const form = document.createElement('form');
     form.id = formId;
@@ -16,12 +67,24 @@ function createForm(formData, formId, createUrl, onSubmitCallback, containerId) 
         let input;
         
         switch (dataType) {
+            case 'options':
+                if (pair.options && Array.isArray(pair.options)) {
+                    input = createSearchableDropdown(name, pair.options, form);
+                } else {
+                    input = document.createElement('input');
+                    input.type = 'text';
+                    form.appendChild(label);
+                    form.appendChild(input);
+                }
+                break;
             case 'text':
                 input = document.createElement('input');
                 input.type = 'text';
                 form.appendChild(label);
                 form.appendChild(input);
                 break;
+            case 'numeric':
+            case 'integer':
             case 'number':
                 input = document.createElement('input');
                 input.type = 'number';
@@ -37,6 +100,14 @@ function createForm(formData, formId, createUrl, onSubmitCallback, containerId) 
             case 'date':
                 input = document.createElement('input');
                 input.type = 'date';
+                form.appendChild(label);
+                form.appendChild(input);
+                break;
+            case 'timestamp':
+            case 'timestamp with time zone':
+            case 'datetime':
+                input = document.createElement('input');
+                input.type = 'datetime-local';
                 form.appendChild(label);
                 form.appendChild(input);
                 break;
