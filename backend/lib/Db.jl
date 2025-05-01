@@ -41,9 +41,34 @@ function get_conn()
     return LibPQ.Connection(conn_str)
 end
 
+function create_foreign_meta_table()
+    conn = get_conn()
+    q = """
+        CREATE TABLE IF NOT EXISTS table_foreign_meta (
+            table_name TEXT NOT NULL UNIQUE,
+            identifier text default 'id' NOT NULL,
+            descriptors text[] NOT NULL
+        )
+    """
+    execute(conn, q)
+end
+
+function insert_foreign_meta(table_name::String, descriptors::Vector{String}, identifier="id")
+    conn = get_conn()
+    q = """
+        INSERT INTO table_foreign_meta (
+            table_name, identifier, descriptors
+        ) VALUES (\$1, \$2, \$3)
+        ON CONFLICT DO NOTHING
+    """
+    params = [table_name, identifier, descriptors]
+    execute(conn, q, params)
+end
+
 function initialize()
     @info "Initializing DB"
     conn = get_conn()
+    create_foreign_meta_table()
     Users.create_users_table(conn)
     @info "Successfully initialized DB"
 end
