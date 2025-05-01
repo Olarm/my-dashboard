@@ -11,13 +11,15 @@
       <input type="radio" id="sleep_radio" name="tabs" checked>
       <label for="sleep_radio" class="tab-label">Sleep</label>
 
+      <input type="radio" id="medicine_log_radio" name="tabs" checked>
+      <label for="medicine_log_radio" class="tab-label">Medicine log</label>
+
       <input type="radio" id="other_radio" name="tabs">
       <label for="other_radio" class="tab-label">Something</label>
 
   <div id="sleep_form" class="tab-content"></div>
+  <div id="medicine_log_form" class="tab-content"></div>
   <div id="other_form" class="tab-content"></div>
-
-
 </div>
 
 </body>
@@ -50,6 +52,15 @@ async function handleFormSubmit(event, createUrl) {
         formValues[key] = value;
     });
 
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    Array.from(form.elements).forEach(element => {
+        if (element.type === 'datetime-local' && formValues[element.name]) {
+            const localDateTime = dateFns.parseISO(formValues[element.name]);
+            const zonedDateTime = dateFns.toDate(localDateTime);
+            formValues[element.name] = dateFns.format(zonedDateTime, 'yyyy-MM-dd HH:mm:ssXXX', { timeZone });
+        }
+    });
+
     console.log('Form submitted:', formValues);
     try {
       const response = await fetch(createUrl, {
@@ -71,11 +82,20 @@ async function getSleepFormData() {
     createForm(data, "sleepForm", "/sleep/create", handleFormSubmit, "sleep_form");
 }
 
+async function getMedicineAdministrationLogData() {
+    const data = await getData("http://127.0.0.1:8080/medicine/administration-log-form");
+    console.log(data);
+    createForm(data, "medicineAdministrationLogForm", "/medicine/log/create", handleFormSubmit, "medicine_log_form");
+}
+
 async function initialize() {
     await getSleepFormData();
+    await getMedicineAdministrationLogData();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+    console.log(tz);
     initialize();
 });
 
