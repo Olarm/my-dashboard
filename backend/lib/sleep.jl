@@ -22,7 +22,7 @@ struct SleepData
         @info data
         date_str = get(data, "date", nothing)
         location = get(data, "location", nothing)
-        room = get(data, "location", nothing)
+        room = get(data, "room", nothing)
         if date_str in [nothing, ""] || location in [nothing, ""] || room in [nothing, ""]
             ret = "Missing required data for sleep data"
             @error ret
@@ -96,6 +96,48 @@ function insert_sleep_data(sleep_data::SleepData)
     return true
 end
 
+function upsert_sleep_data(sleep_data::SleepData)
+    conn = Db.get_conn()
+    q = """
+        INSERT INTO sleep_data (
+            date,
+            location,
+            room,
+            twin_bed,
+            sleep_solo,
+            mouth_tape,
+            nose_magnet,
+            nose_magnet_off
+        ) VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8)
+        ON CONFLICT (date)
+        DO UPDATE SET
+            location = EXCLUDED.location,
+            room = EXCLUDED.room,
+            twin_bed = EXCLUDED.twin_bed,
+            sleep_solo = EXCLUDED.sleep_solo,
+            mouth_tape = EXCLUDED.mouth_tape,
+            nose_magnet = EXCLUDED.nose_magnet,
+            nose_magnet_off = EXCLUDED.nose_magnet_off;
+    """
+    params = [
+        sleep_data.date,
+        sleep_data.location,
+        sleep_data.room,
+        sleep_data.twin_bed,
+        sleep_data.sleep_solo,
+        sleep_data.mouth_tape,
+        sleep_data.nose_magnet,
+        sleep_data.nose_magnet_off
+    ]
+    result = try 
+        execute(conn, q, params)
+    catch e
+        @error e
+        return false
+    end
+    return true
+end
+
 function serve_sleep_dashboard(req::HTTP.Request)
     html_path = joinpath(App.STATIC_DIR, "sleep/dashboard.html")
     wrap_return = wrap(html_path)
@@ -140,7 +182,7 @@ end
 function create_sleep_data(req::HTTP.Request)
     body = JSON3.read(String(req.body))
     obj = SleepData(body)
-    result = insert_sleep_data(obj)
+    result = upsert_sleep_data(obj)
     if result == true
         @info "Sleep data inserted successfully."
     else
