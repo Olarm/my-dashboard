@@ -213,6 +213,8 @@ HTTP.register!(ROUTER, "GET", "/login", Auth.login_page)
 HTTP.register!(ROUTER, "POST", "/authenticate", Auth.authenticate)
 
 include("lib/sleep.jl")
+include("lib/medicine.jl")
+Medicines.create_medicine_tables()
 
 config = get_config()
 
