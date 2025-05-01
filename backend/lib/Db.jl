@@ -22,12 +22,12 @@ import .Users
 
 include("exercises.jl")
 
+
 function get_config()
     open("config.toml", "r") do io
         return TOML.parse(io)
     end
 end
-
 
 function get_conn()
     config = get_config()["db"]
@@ -41,7 +41,6 @@ function get_conn()
     return LibPQ.Connection(conn_str)
 end
 
-
 function initialize()
     @info "Initializing DB"
     conn = get_conn()
@@ -49,6 +48,101 @@ function initialize()
     @info "Successfully initialized DB"
 end
 
+function table_info_query(table_name)
+    conn = get_conn()
+    q = """
+        SELECT
+            c.column_name AS name,
+            c.data_type,
+            c.column_default AS default,
+            c.is_nullable,
+            CASE
+                WHEN pk.column_name IS NOT NULL THEN true
+                ELSE false
+            END AS primary_key,
+            CASE
+                WHEN fk.column_name IS NOT NULL THEN true
+                ELSE false
+            END AS foreign_key,
+            fk_ref.foreign_table_name AS references_table
+        FROM
+            INFORMATION_SCHEMA.COLUMNS c
+        LEFT JOIN (
+            SELECT
+                kcu.column_name,
+                kcu.table_name
+            FROM
+                INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+            JOIN
+                INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
+            ON
+                tc.constraint_name = kcu.constraint_name
+                AND tc.table_name = kcu.table_name
+            WHERE
+                tc.constraint_type = 'PRIMARY KEY'
+        ) pk
+        ON
+            c.column_name = pk.column_name AND c.table_name = pk.table_name
+        LEFT JOIN (
+            SELECT
+                kcu.column_name,
+                kcu.table_name
+            FROM
+                INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+            JOIN
+                INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
+            ON
+                tc.constraint_name = kcu.constraint_name
+                AND tc.table_name = kcu.table_name
+            WHERE
+                tc.constraint_type = 'FOREIGN KEY'
+        ) fk
+        ON
+            c.column_name = fk.column_name AND c.table_name = fk.table_name
+        LEFT JOIN (
+            SELECT
+                kcu.column_name,
+                kcu.table_name,
+                ccu.table_name AS foreign_table_name
+            FROM
+                INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+            JOIN
+                INFORMATION_SCHEMA.KEY_COLUMN_USAGE kcu
+            ON
+                tc.constraint_name = kcu.constraint_name
+                AND tc.table_name = kcu.table_name
+            JOIN
+                INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu
+            ON
+                tc.constraint_name = ccu.constraint_name
+            WHERE
+                tc.constraint_type = 'FOREIGN KEY'
+        ) fk_ref
+        ON
+            c.column_name = fk_ref.column_name AND c.table_name = fk_ref.table_name
+        WHERE
+            c.table_name = \$1
+        ORDER BY c.ordinal_position;
+    """
+    params = [table_name]
+    return execute(conn, q, params)
+end
+
+
+function create_table_form(table_name)
+    result = table_info_query(table_name)
+    data = []
+    for row in result
+        row_dict = Dict{String,Any}()
+        @info "new row"
+        for (i, col) in enumerate(LibPQ.column_names(result))
+            @info col ": " row[i]
+            row_dict[col] = row[i]
+        end
+        push!(data, row_dict)
+    end
+    return data
+end
 
 function get_conn_ha()
     config = get_config()["db"]
