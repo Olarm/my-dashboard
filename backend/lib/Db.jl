@@ -161,9 +161,7 @@ function create_table_form(table_name; user_id=false)
         if row[1] == "user_id" && user_id == false
             continue
         end
-        @info "new row"
         for (i, col) in enumerate(LibPQ.column_names(result))
-            @info col ": " row[i]
             row_dict[col] = row[i]
         end
         push!(data, row_dict)

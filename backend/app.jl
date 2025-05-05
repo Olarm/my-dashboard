@@ -19,6 +19,7 @@ using .Db
 using .Food
 #using Main.StatisticAnalysis
 
+include("lib/users.jl")
 
 NasalSprays.create_tables()
 
@@ -54,7 +55,6 @@ function JSON_middleware(handler)
     end
 end
 
-
 function auth_middleware(handler)
     allowed = ("/login", "/authenticate", "/static/style.css")
 
@@ -67,7 +67,12 @@ function auth_middleware(handler)
         if !auth.ok
             return HTTP.Response(401, "unauthorized")
         else
-            req.context[:auth] = auth.payload
+            user_ret = Users.get_user(auth.payload)
+            if !user_ret.ok
+                @error "Couldnt get User for user with payload: $(auth.payload))"
+                return HTTP.Response(401, "unauthorized, could not get user")
+            end
+            req.context[:user] = user_ret.user
             return handler(req)
         end
     end
@@ -106,11 +111,6 @@ function get_tcx_list(req)
 end
 
 function get_dashboard(req)
-    #auth = Auth.verify_jwt_token(req)
-    #if !auth.ok
-    #    return Auth.login_page(req)
-    #end
-
     path = joinpath(STATIC_DIR, "index.html")
     html_content = read(path, String)
     return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
@@ -220,7 +220,7 @@ config = get_config()
 
 server = nothing
 if config["environment"] == "local"
-    server = HTTP.serve!(ROUTER, Sockets.localhost, 8080)
+    server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, 8080)
 else
     server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, 8080)
 end

@@ -65,8 +65,13 @@ function authenticate(req::HTTP.Request)
     redirect_url = "/dashboard"
 
     if name == "admin" && password == "secret"
-        token = generate_jwt(name, "1")
-        return HTTP.Response(302, ["Location" => "/dashboard", "Set-Cookie" => "token=$token; HttpOnly; Secure; Path=/; SameSite=Lax"])
+        user_id = 1
+        token = generate_jwt(name, "$user_id")
+        content = [
+            "Location" => "/dashboard", 
+            "Set-Cookie" => "token=$token; HttpOnly; Secure; Path=/; SameSite=Lax"
+        ]
+        return HTTP.Response(302, content)
     else
         return HTTP.Response(401, JSON3.write(Dict("error" => "Invalid credentials")))
     end
