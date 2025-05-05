@@ -17,7 +17,6 @@ export
 
 using LibPQ, DataFrames, JSON3, TOML, Dates
 
-include("users.jl")
 import .Users
 
 include("exercises.jl")
@@ -69,7 +68,7 @@ function initialize()
     @info "Initializing DB"
     conn = get_conn()
     create_foreign_meta_table()
-    Users.create_users_table(conn)
+    #Users.create_users_table(conn)
     @info "Successfully initialized DB"
 end
 
@@ -154,11 +153,14 @@ function table_info_query(table_name)
 end
 
 
-function create_table_form(table_name)
+function create_table_form(table_name; user_id=false)
     result = table_info_query(table_name)
     data = []
     for row in result
         row_dict = Dict{String,Any}()
+        if row[1] == "user_id" && user_id == false
+            continue
+        end
         @info "new row"
         for (i, col) in enumerate(LibPQ.column_names(result))
             @info col ": " row[i]
