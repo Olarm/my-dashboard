@@ -15,7 +15,7 @@ export
     get_exercise,
     get_exercises
 
-using LibPQ, DataFrames, JSON3, TOML, Dates
+using LibPQ, DataFrames, JSON3, TOML, Dates, Tables
 
 import .Users
 
@@ -152,6 +152,21 @@ function table_info_query(table_name)
     return execute(conn, q, params)
 end
 
+function parse_libpq_array(libpq_array::String)
+    stripped = libpq_array[2:end-1]
+    return split(stripped, ",")
+end
+
+function get_foreign_options(table_name)
+    conn = get_conn()
+    q = """
+        SELECT * FROM table_foreign_meta 
+        WHERE table_name = \$1  
+    """
+    params = [table_name]
+    result = execute(conn, q, params) 
+    return columntable(result)
+end
 
 function create_table_form(table_name; user_id=false)
     result = table_info_query(table_name)
