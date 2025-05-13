@@ -167,7 +167,7 @@ function get_foreign_options(table_name)
         result = execute(conn, q)
         return DataFrame(result)
     end
-    
+
     conn = get_conn()
     q = """
         SELECT * FROM table_foreign_meta 
@@ -188,6 +188,11 @@ function create_table_form(table_name; user_id=false)
         row_dict = Dict{String,Any}()
         if row[1] == "user_id" && user_id == false
             continue
+        end
+        if row[6] == true
+            @info "ITS A FOREIGN KEY"
+            foreigns = get_foreign_options(row[7])
+            @info foreigns
         end
         for (i, col) in enumerate(LibPQ.column_names(result))
             row_dict[col] = row[i]
