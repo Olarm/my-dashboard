@@ -157,15 +157,17 @@ function parse_libpq_array(libpq_array::String)
     return split(stripped, ",")
 end
 
-function foreign_options_query(conn, data, table_name)
-    descriptors = data.descriptors[1][2:end-1]
-    id_col = data.identifier[1]
-    q = """SELECT $id_col, $descriptors FROM $table_name;"""
-    result = execute(conn, q)
-    return DataFrame(result)
-end
 
 function get_foreign_options(table_name)
+
+    function foreign_options_query(conn, data, table_name)
+        descriptors = data.descriptors[1][2:end-1]
+        id_col = data.identifier[1]
+        q = """SELECT $id_col, $descriptors FROM $table_name;"""
+        result = execute(conn, q)
+        return DataFrame(result)
+    end
+    
     conn = get_conn()
     q = """
         SELECT * FROM table_foreign_meta 
@@ -175,7 +177,8 @@ function get_foreign_options(table_name)
     result = execute(conn, q, params)
     data = columntable(result)
 
-    return foreign_options_query(conn, data, table_name)
+    foreign_options = foreign_options_query(conn, data, table_name)
+    return (ok=true, data=foreign_options)
 end
 
 function create_table_form(table_name; user_id=false)
