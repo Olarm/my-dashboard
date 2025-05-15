@@ -152,12 +152,6 @@ function table_info_query(table_name)
     return execute(conn, q, params)
 end
 
-function parse_libpq_array(libpq_array::String)
-    stripped = libpq_array[2:end-1]
-    return split(stripped, ",")
-end
-
-
 function get_foreign_options(table_name)
 
     function foreign_options_query(conn, data, table_name)
@@ -189,13 +183,15 @@ function create_table_form(table_name; user_id=false)
         if row[1] == "user_id" && user_id == false
             continue
         end
+        for (i, col) in enumerate(LibPQ.column_names(result))
+            row_dict[col] = row[i]
+        end
         if row[6] == true
             @info "ITS A FOREIGN KEY"
             foreigns = get_foreign_options(row[7])
             @info foreigns
-        end
-        for (i, col) in enumerate(LibPQ.column_names(result))
-            row_dict[col] = row[i]
+            row_dict["data_type"] = "options"
+            row_dict["options"] = foreigns.data.name
         end
         push!(data, row_dict)
     end
