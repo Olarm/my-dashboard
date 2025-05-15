@@ -28,6 +28,7 @@ end
 
 function verify_jwt_token(req::HTTP.Request)
     cookie_header = HTTP.header(req, "Cookie")
+    cookie_time = 3600 * 24 * 100 # 100 days
 
     if occursin("token=", cookie_header)
         token = split(cookie_header, "token=")[2]
@@ -35,7 +36,7 @@ function verify_jwt_token(req::HTTP.Request)
         try
             encoding = JSONWebTokens.HS256(SECRET_KEY)
             payload = JSONWebTokens.decode(encoding, token)
-            if time() > (get(payload, "iat", 0) + 3600)
+            if time() > (get(payload, "iat", 0) + cookie_time)
                 return (ok=false, payload=nothing)
             else
                 return (ok=true, payload=payload)
