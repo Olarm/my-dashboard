@@ -3,7 +3,7 @@ module Auth
 using HTTP, JSON3, LibPQ, URIs, Dates
 import JSONWebTokens
 
-using ..App: STATIC_DIR, get_dashboard
+using ..App
 using ..Templates: wrap
 
 export
@@ -42,6 +42,7 @@ function verify_jwt_token(req::HTTP.Request)
                 return (ok=true, payload=payload)
             end
         catch e
+            @error e
             return (ok=false, payload=nothing)
         end
     end
@@ -50,7 +51,7 @@ end
 
 
 function login_page(req::HTTP.Request)
-    html_path = joinpath(STATIC_DIR, "auth/login.html")
+    html_path = joinpath(App.STATIC_DIR, "auth/login.html")
     wrap_return = wrap(html_path)
     if wrap_return.ok
         html_content = wrap_return.html
@@ -68,9 +69,15 @@ function authenticate(req::HTTP.Request)
     if name == "admin" && password == "secret"
         user_id = 1
         token = generate_jwt(name, "$user_id")
+        set_cookie = "token=$token; HttpOnly; Secure; Path=/; SameSite=Lax"
+        if App.config["environment"] == "local"
+            set_cookie = "token=$token; HttpOnly; Path=/; SameSite=Lax"
+        end
+
         content = [
             "Location" => "/dashboard", 
-            "Set-Cookie" => "token=$token; HttpOnly; Secure; Path=/; SameSite=Lax"
+            "Set-Cookie" => set_cookie
+            #"Set-Cookie" => "token=$token; HttpOnly; Secure; Path=/; SameSite=Lax"
         ]
         return HTTP.Response(302, content)
     else
