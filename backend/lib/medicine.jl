@@ -9,6 +9,7 @@ using
 using ..Templates
 import ..App
 import ..Db
+import ..Forms
 
 include("medicine/create_tables.jl")
 
@@ -23,7 +24,7 @@ function create_medicine_tables()
 end
 
 function get_administration_log_form(req::HTTP.Request)
-    form = Db.create_table_form("medicine_administration_log")
+    form = Forms.create_table_form("medicine_administration_log")
     
 
     HTTP.Response(200, App.get_headers(), JSON3.write(form))
