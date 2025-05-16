@@ -22,9 +22,37 @@
   <div id="other_form" class="tab-content"></div>
 </div>
 
+{% test-form %}
+
+
 </body>
 
 <script>
+
+async function testSubmit(event) {
+    event.preventDefault(); 
+    const form = event.target;
+    console.log(form)
+    const formData = new FormData(form);
+
+    const formValues = {};
+    formData.forEach((value, key) => {
+        formValues[key] = value;
+        console.log(value);
+    });
+    try {
+      const response = await fetch("/medicine/log/create", {
+        method: "POST",
+          headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formValues),
+      });
+      console.log(response);
+    } catch (e) {
+      console.error(e);
+    }
+}
 
 async function getData(url) {
   try {
@@ -77,13 +105,13 @@ async function handleFormSubmit(event, createUrl) {
 }
 
 async function getSleepFormData() {
-    const data = await getData("http://127.0.0.1:8080/sleep/form-data");
+    const data = await getData("/sleep/form-data");
     console.log(data);
     createForm(data, "sleepForm", "/sleep/create", handleFormSubmit, "sleep_form");
 }
 
 async function getMedicineAdministrationLogData() {
-    const data = await getData("http://127.0.0.1:8080/medicine/administration-log-form");
+    const data = await getData("/medicine/administration-log-form");
     console.log(data);
     createForm(data, "medicineAdministrationLogForm", "/medicine/log/create", handleFormSubmit, "medicine_log_form");
 }
@@ -94,6 +122,7 @@ async function initialize() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById("myForm").addEventListener("submit", testSubmit);
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
     console.log(tz);
     initialize();
