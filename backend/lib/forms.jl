@@ -143,6 +143,25 @@ function serve_forms(req)
     wrap_return = Templates.wrap(html_path)
     if wrap_return.ok
         html_content = wrap_return.html
+        form_html = """
+          <h1>Dropdown with searchable text</h1>
+          <form id="myForm">
+            <label for="myHouse">Choose your magical house:</label>
+            <input type="text" list="magicHouses" id="myHouse" name="myHouse" placeholder="type here..." />
+            <datalist id="magicHouses">
+                <option label="label">Gryfindor</option>
+                <option value="2">Hufflepuff</option>
+                <option value="3">Slytherin</option>
+                <option value="4">Ravenclaw</option>
+                <option value="5">Horned Serpent</option>
+                <option value="6">Thunderbird</option>
+                <option value="7">Pukwudgie</option>
+                <option value="8">Wampus</option>
+            </datalist>
+            <input name="Submit"  type="submit" value="Update" />
+          </form>
+        """
+        html_content = Templates.insert_content(html_content, form_html, "test-form")
         return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
     end
     return HTTP.Response(501)

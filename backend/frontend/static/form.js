@@ -1,14 +1,17 @@
 function createSearchableDropdown(labelText, options, form) {
+    console.log(options);
     const label = document.createElement('label');
     label.textContent = labelText + ': ';
     form.appendChild(label);
 
     const input = document.createElement('input');
     input.type = 'text';
-    input.placeholder = 'Type to search...';
+    input.placeholder = 'Type to search....';
+    input.list = "testList";
     form.appendChild(input);
 
-    const dropdownList = document.createElement('div');
+    const dropdownList = document.createElement('datalist');
+    dropdownList.id = "testList";
     dropdownList.className = 'dropdown-content';
     form.appendChild(dropdownList);
 
@@ -22,8 +25,9 @@ function createSearchableDropdown(labelText, options, form) {
             );
 
             filteredOptions.forEach(option => {
-                const div = document.createElement('div');
+                const div = document.createElement('option');
                 div.textContent = option[1];
+                div.value = option[1];
                 div.dataset.id = option[0]; // Store the ID in a data attribute
                 div.addEventListener('click', function() {
                     input.value = option[1];

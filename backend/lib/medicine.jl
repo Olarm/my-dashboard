@@ -30,5 +30,13 @@ function get_administration_log_form(req::HTTP.Request)
     HTTP.Response(200, App.get_headers(), JSON3.write(form))
 end
 
+function create_medicine_log(req::HTTP.Request)
+    @info "creating medicine log"
+    body = JSON3.read(String(req.body))
+    @info body
+    HTTP.Response(200)
+end
+
 HTTP.register!(App.ROUTER, "GET", "/medicine/administration-log-form", get_administration_log_form)
+HTTP.register!(App.ROUTER, "POST", "/medicine/log/create", create_medicine_log)
 end
