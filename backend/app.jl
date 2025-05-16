@@ -9,6 +9,13 @@ export
 
 const STATIC_DIR = joinpath(@__DIR__, "frontend")
 
+function get_config()
+    open("config.toml", "r") do io
+        return TOML.parse(io)
+    end
+end
+config = get_config()
+
 include("lib/template.jl")
 include("lib/Db.jl")
 include("lib/nasalspray.jl")
@@ -23,11 +30,6 @@ include("lib/users.jl")
 
 NasalSprays.create_tables()
 
-function get_config()
-    open("config.toml", "r") do io
-        return TOML.parse(io)
-    end
-end
 
 function get_headers()
     return Dict(
@@ -207,11 +209,10 @@ include("lib/forms.jl")
 include("lib/medicine.jl")
 Medicines.create_medicine_tables()
 
-config = get_config()
 
 server = nothing
 if config["environment"] == "local"
-    server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, 8080)
+    server = HTTP.serve!(ROUTER |> auth_middleware, "0.0.0.0", 8080)
 else
     server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, 8080)
 end
