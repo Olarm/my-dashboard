@@ -5,22 +5,31 @@ export wrap
 using ..App: STATIC_DIR
 
 
-function render_template(base_html::String, content_html::String)
-    # Regular expression to extract content inside {% begin content %} ... {% end content %}
-    content_match = match(r"{%\s*begin content\s*%}(.*?){%\s*end content\s*%}"s, content_html)
+function render_template(base_html::String, content_html::String, section_name="content")
+    pattern_str = "{%\\s*begin $(section_name)\\s*%}(.*?){%\\s*end $(section_name)\\s*%}"
+    content_match = match(Regex(pattern_str, "s"), content_html)
     
     if content_match !== nothing
         replacement_content = content_match.captures[1]  # Extract content inside tags
         
-        # Replace the {% begin content %} block in base_html with extracted content
-        rendered_html = replace(base_html, r"{%\s*begin content\s*%}.*?{%\s*end content\s*%}"s => replacement_content)
+        rendered_html = replace(base_html, Regex(pattern_str, "s") => replacement_content)
         
         return rendered_html
     else
-        return base_html  # If no content is found, return original base HTML
+        return base_html
     end
 end
 
+function insert_content(base_html::String, content_html::String, section_name)
+    pattern_str = "{%\\s* $(section_name) \\s*%}"
+    content_match = match(Regex(pattern_str, "s"), base_html)
+    if content_match !== nothing
+        rendered_html = replace(base_html, Regex(pattern_str, "s") => content_html)
+        return rendered_html
+    else
+        return base_html
+    end
+end
 
 function match_extend(path, content_html)
     extends = match(r"{%\s*extends\s*'([^']+)'", content_html)
