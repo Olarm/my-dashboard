@@ -2,6 +2,8 @@ module Templates
 
 export wrap
 
+include("template/forms.jl")
+
 using ..App: STATIC_DIR
 
 
@@ -47,6 +49,13 @@ function match_extend(path, content_html)
     end
 end
 
+function create_form(form_data, form_id)
+    form = """<form id='$form_id'>"""
+    for input in form_data
+        data_type = input["data_type"]
+        if data_type == ""
+    end
+end
 
 function wrap(path)
     html_content = read(path, String)
