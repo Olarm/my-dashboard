@@ -51,10 +51,12 @@ end
 
 function create_form(form_data, form_id)
     form = """<form id='$form_id'>"""
-    for input in form_data
-        data_type = input["data_type"]
-        if data_type == ""
+    for input_data in form_data
+        form *= create_generic_input(input_data)
     end
+    form *= "<input name='Submit'  type='submit' value='Update' />"
+    form *= "</form>"
+    return form
 end
 
 function wrap(path)

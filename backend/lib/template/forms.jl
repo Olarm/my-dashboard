@@ -1,9 +1,65 @@
 
 
-function create_options(input_data)
-
+function create_options(input_data, id)
+    input_string = """
+    """
+    return input_string
 end
 
-function create_text(input_data)
+function create_radio(input_data, input_id)
+    name = input_data["name"]
+    input_string = "<div class='radio-group'>"
+    for (index, option_data) in enumerate(input_data["options"])
+        option_id = "$(name)_$(index)"
+        option_name = option_data["name"]
+        checked = index == 1 ? "checked" : ""
+        input_string *= """
+        <div>
+        <label for='$option_id'>$option_name</label>
+        <input
+            type='radio'
+            name='$input_name'
+            id='$option_id' 
+        """ * checked * "</div>"
+    end
+    input_string *= "</div>"
+    return input_string
+end
 
+function create_generic_input(input_data, input_type, id)
+    name = input_data["name"]
+    input_string = """
+    <label for='$id'>$name</label>
+    <input 
+        type='$input_type'
+        id='$id'
+        name='$name'
+        required
+    />
+    """
+    return input_string
+end
+
+function create_generic_input(input_data)
+    input_id = form_id * input_data["name"]
+    data_type = input_data["data_type"]
+    if data_type == "options"
+        return create_options(input_data, input_id)
+    elseif data_type == "radio"
+        return create_radio(input_data, input_id)
+    elseif data_type == "text"
+        return create_generic_input(input_data, "text", input_id)
+    elseif data_type in ["number", "integer", "numeric"]
+        return create_generic_input(input_data, "number", input_id)
+    elseif data_type == "email"
+        return create_generic_input(input_data, "email", input_id)
+    elseif data_type == "date"
+        return create_generic_input(input_data, "date", input_id)
+    elseif data_type in ["timestamp", "timestamp with time zone", "datetime"]
+        return create_generic_input(input_data, "datetime-local", input_id)
+    elseif data_type == "boolean"
+        return create_generic_input(input_data, "checkbox", input_id)
+    else
+        @warn "no matching data type for $data_type"
+    end
 end
