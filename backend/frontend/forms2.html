@@ -1,0 +1,92 @@
+{% extends 'head.html' %}
+
+{% begin content %}
+<script src="/static/form.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/form.css">
+
+<body>
+
+  <div class="tabs"></div>
+      <!-- Radio buttons for tab toggling -->
+      <input type="radio" id="sleep_radio" name="tabs" checked>
+      <label for="sleep_radio" class="tab-label">Sleep</label>
+
+      <input type="radio" id="medicine_log_radio" name="tabs" checked>
+      <label for="medicine_log_radio" class="tab-label">Medicine log</label>
+
+      <input type="radio" id="other_radio" name="tabs">
+      <label for="other_radio" class="tab-label">Something</label>
+
+  <div id="sleep_form" class="tab-content"></div>
+  <div id="medicine_log_form" class="tab-content"></div>
+  <div id="other_form" class="tab-content">
+    {% sleep-form %}
+  </div>
+</div>
+
+{% test-form %}
+
+
+</body>
+
+<script>
+
+  async function handleFormSubmission(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const form = event.target;
+    const formData = new FormData(form);
+    const data = {};
+
+    // Convert FormData to a plain object
+    for (let [key, value] of formData.entries()) {
+      data[key] = value;
+    }
+
+    // Get the action and URL specified in the data attributes
+    const action = form.getAttribute('data-action');
+    const url = form.getAttribute('data-url');
+
+    // Call the appropriate function based on the action
+    if (action === 'processForm') {
+      await processForm(data, url);
+    } else {
+      console.error('Unknown action:', action);
+    }
+  }
+
+  // Function to process form data and submit to the specified URL
+  async function processForm(data, url) {
+    console.log('Form data:', data);
+    console.log('Submission URL:', url);
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Success:', result);
+      } else {
+        console.error('Error:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  // Use event delegation to handle form submissions
+  document.body.addEventListener('submit', function(event) {
+    if (event.target.classList.contains('dynamic-form')) {
+      handleFormSubmission(event);
+    }
+  });
+
+</script>
+
+{% end content %}

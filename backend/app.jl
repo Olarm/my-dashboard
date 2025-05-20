@@ -147,6 +147,10 @@ function get_nasalspray(req)
     return HTTP.Response(200, "hello")
 end
 
+function test_form_submit(req)
+    @info "Test form submit"
+    return HTTP.Response(200, "success!")
+end
 
 function get_mime_type(file_path::String)
     ext = splitext(file_path)[2]
@@ -199,6 +203,7 @@ HTTP.register!(ROUTER, "GET", "/tcx", get_tcx_list)
 HTTP.register!(ROUTER, "GET", "/food_table", get_food_table)
 HTTP.register!(ROUTER, "GET", "/food_list", get_daily_food)
 HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
+HTTP.register!(ROUTER, "POST", "/test/form/submit", test_form_submit)
 
 # Auth
 HTTP.register!(ROUTER, "GET", "/login", Auth.login_page)

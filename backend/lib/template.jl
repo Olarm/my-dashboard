@@ -49,12 +49,13 @@ function match_extend(path, content_html)
     end
 end
 
-function create_form(form_data, form_id)
-    form = """<form id='$form_id'>"""
+function create_form(form_data, form_id, rel_url)
+    form = """<form id='$form_id' data-action='processForm' data-url='rel_url'>"""
     for input_data in form_data
-        form *= create_generic_input(input_data)
+        form *= create_generic_input(input_data, form_id)
     end
-    form *= "<input name='Submit'  type='submit' value='Update' />"
+    #form *= "<input name='Submit'  type='submit' value='Update' />"
+    form *= "<br><button type='submit'>Submit</button>"
     form *= "</form>"
     return form
 end

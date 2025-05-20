@@ -34,20 +34,20 @@ function create_generic_input(input_data, input_type, id)
         type='$input_type'
         id='$id'
         name='$name'
-        required
-    />
     """
+    input_string *= (input_data["is_nullable"] == "NO" && input_data != "boolean") ? "required" : ""
+    input_string *= " />"
     return input_string
 end
 
-function create_generic_input(input_data)
+function create_generic_input(input_data, form_id)
     input_id = form_id * input_data["name"]
     data_type = input_data["data_type"]
     if data_type == "options"
         return create_options(input_data, input_id)
     elseif data_type == "radio"
         return create_radio(input_data, input_id)
-    elseif data_type == "text"
+    elseif data_type in ["text", "character varying"]
         return create_generic_input(input_data, "text", input_id)
     elseif data_type in ["number", "integer", "numeric"]
         return create_generic_input(input_data, "number", input_id)
@@ -61,5 +61,6 @@ function create_generic_input(input_data)
         return create_generic_input(input_data, "checkbox", input_id)
     else
         @warn "no matching data type for $data_type"
+        return ""
     end
 end

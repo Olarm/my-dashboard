@@ -139,7 +139,7 @@ function create_table_form(table_name; user_id=false)
 end
 
 function serve_forms(req)
-    html_path = joinpath(App.STATIC_DIR, "forms.html")
+    html_path = joinpath(App.STATIC_DIR, "forms2.html")
     wrap_return = Templates.wrap(html_path)
     if wrap_return.ok
         html_content = wrap_return.html
@@ -161,7 +161,15 @@ function serve_forms(req)
             <input name="Submit"  type="submit" value="Update" />
           </form>
         """
-        html_content = Templates.insert_content(html_content, form_html, "test-form")
+        #html_content = Templates.insert_content(html_content, form_html, "test-form")
+
+        test_table_data = create_table_form("test")
+        test_form = Templates.create_form(test_table_data, "test-form", "/test/form/submit")
+        html_content = Templates.insert_content(html_content,test_form, "test-form")
+        
+        sleep_table_data = create_table_form("sleep_data")
+        sleep_form = Templates.create_form(sleep_table_data, "sleep-data-form", "/sleep/create")
+        html_content = Templates.insert_content(html_content, sleep_form, "sleep-form")
         return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
     end
     return HTTP.Response(501)
