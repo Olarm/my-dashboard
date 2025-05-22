@@ -35,7 +35,7 @@ function create_generic_input(input_data, input_type, id)
         id='$id'
         name='$name'
     """
-    input_string *= (input_data["is_nullable"] == "NO" && input_data != "boolean") ? "required" : ""
+    input_string *= (input_data["is_nullable"] == "NO" && input_data["data_type"] != "boolean") ? "required" : ""
     input_string *= " />"
     return input_string
 end
