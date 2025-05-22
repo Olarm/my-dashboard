@@ -39,6 +39,6 @@ input[type="radio"]:checked + label {
 
 #sleep_radio:checked ~ #sleep_form,
 #medicine_log_radio:checked ~ #medicine_log_form,
-#other_radio:checked ~ #other_form {
+#weight_radio:checked ~ #weight_form {
     display: block;
 }

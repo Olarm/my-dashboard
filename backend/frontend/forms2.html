@@ -14,13 +14,12 @@
       <input type="radio" id="medicine_log_radio" name="tabs" checked>
       <label for="medicine_log_radio" class="tab-label">Medicine log</label>
 
-      <input type="radio" id="other_radio" name="tabs">
-      <label for="other_radio" class="tab-label">Something</label>
+      <input type="radio" id="weight_radio" name="tabs">
+      <label for="weight_radio" class="tab-label">Weight</label>
 
   <div id="sleep_form" class="tab-content">{% sleep-data-form %}</div>
-  <div id="medicine_log_form" class="tab-content"></div>
-  <div id="other_form" class="tab-content">
-  </div>
+  <div id="medicine_log_form" class="tab-content">{% medicine-administration-log-form %}</div>
+  <div id="weight_form" class="tab-content">{% weight-form %}</div>
 </div>
 
 </body>
