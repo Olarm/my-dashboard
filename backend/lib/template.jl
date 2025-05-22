@@ -52,6 +52,9 @@ end
 function create_form(form_data, form_id, rel_url)
     form = """<form id='$form_id' data-action='processForm' data-url='$rel_url'>"""
     for input_data in form_data
+        if input_data["primary_key"] == true
+            continue
+        end
         form *= create_generic_input(input_data, form_id)
     end
     #form *= "<input name='Submit'  type='submit' value='Update' />"

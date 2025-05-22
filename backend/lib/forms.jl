@@ -97,7 +97,7 @@ function get_foreign_options(table_name)
     function foreign_options_query(conn, data, table_name)
         descriptors = data.descriptors[1][2:end-1]
         id_col = data.identifier[1]
-        q = """SELECT $id_col, $descriptors FROM $table_name;"""
+        q = """SELECT $id_col id, $descriptors FROM $table_name;"""
         result = execute(conn, q)
         return DataFrame(result)
     end
@@ -131,7 +131,8 @@ function create_table_form(table_name; user_id=false)
             foreigns = get_foreign_options(row[7])
             @info foreigns
             row_dict["data_type"] = "options"
-            row_dict["options"] = foreigns.data.name
+            row_dict["options"] = ["$(r.id) $(r.name)" for r in eachrow(foreigns.data)]
+            #"$(foreigns.data.id) $(foreigns.data.name)"
         end
         push!(data, row_dict)
     end
@@ -168,7 +169,10 @@ function serve_forms(req)
             <input name="Submit"  type="submit" value="Update" />
           </form>
         """
+
+        html_content = add_form(html_content, "medicine_administration_log", "medicine-administration-log-form", "/medicine/log/create")
         html_content = add_form(html_content, "sleep_data", "sleep-data-form", "/sleep/create")
+        html_content = add_form(html_content, "weight", "weight-form", "/weight/create")
         return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
     end
     return HTTP.Response(501)
