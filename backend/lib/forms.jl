@@ -93,6 +93,7 @@ function table_info_query(table_name)
 end
 
 function get_foreign_options(table_name)
+    # TODO: Get target table as well and query where id is in it
 
     function foreign_options_query(conn, data, table_name)
         descriptors = data.descriptors[1][2:end-1]
@@ -173,6 +174,7 @@ function serve_forms(req)
         html_content = add_form(html_content, "medicine_administration_log", "medicine-administration-log-form", "/medicine/log/create")
         html_content = add_form(html_content, "sleep_data", "sleep-data-form", "/sleep/create")
         html_content = add_form(html_content, "weight", "weight-form", "/weight/create")
+        html_content = add_form(html_content, "event_timestamp_double", "event-ts-double-form", "/event/timestamp_double/create")
         return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
     end
     return HTTP.Response(501)
