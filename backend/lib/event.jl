@@ -5,6 +5,7 @@ using
     Dates, 
     LibPQ,
     JSON3,
+    DataFrames,
     Dates,
     TimeZones
 
@@ -36,6 +37,22 @@ function initiate_event_meta(conn)
         ON CONFLICT DO NOTHING;
     """
     execute(conn, q)
+end
+
+function get_event_meta(id::Int)
+    conn = Db.get_conn()
+    q = "SELECT * from event_meta_data WHERE id = \$1"
+    df = execute(conn, q, [id]) |> DataFrame
+    if size(df)[1] != 1
+        return (ok=false, data=nothing)
+    end
+    return (ok=true, data=df)
+end
+
+function get_event_meta(id_name::String)
+    id_str, name = split(id_name, " ")
+    id = parse(Int, id_str)
+    return get_event_meta(id)
 end
 
 function create_meta_data_table()
@@ -104,7 +121,8 @@ function create_timestamp_double_table()
             value double precision not null,
             FOREIGN KEY (meta_data_id) REFERENCES event_meta_data(id)
                 ON DELETE CASCADE
-                ON UPDATE CASCADE
+                ON UPDATE CASCADE,
+            UNIQUE (timestamp, meta_data_id)
         )
     """
     execute(conn, q)
@@ -120,6 +138,8 @@ end
 function create_timestamp_double_event(req::HTTP.Request)
     @info "creating timestamp double event"
     body = JSON3.read(String(req.body))
+    event_meta_data = get_event_meta(body["meta_data"])
+    @info event_meta_data
     @info body
     HTTP.Response(200)
 end
