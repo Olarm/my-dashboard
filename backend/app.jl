@@ -218,12 +218,12 @@ Events.create_event_tables()
 Medicines.create_medicine_tables()
 
 
-
+port = get(config, "port", 8080)
 server = nothing
 if config["environment"] == "local"
-    server = HTTP.serve!(ROUTER |> auth_middleware, "0.0.0.0", 8080)
+    server = HTTP.serve!(ROUTER |> auth_middleware, "0.0.0.0", port)
 else
-    server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, 8080)
+    server = HTTP.serve!(ROUTER |> auth_middleware, Sockets.localhost, port)
 end
 #HTTP.serve(ROUTER, Sockets.localhost, 8080)
 
