@@ -37,6 +37,7 @@ function initiate_event_meta(conn)
         ON CONFLICT DO NOTHING;
     """
     execute(conn, q)
+    close(conn)
 end
 
 function get_event_meta(id::Int)
@@ -71,8 +72,27 @@ function create_meta_data_table()
     execute(conn, q)
     Db.insert_foreign_meta("event_meta_data", ["name", "unit"])
     initiate_event_meta(conn)
+    close(conn)
 end
 
+function initiate_bss_category(conn)
+    meta_data = execute(conn, "select id from event_meta_data where short_name = 'bss';") |> DataFrame
+    meta_data_id = meta_data.id[1]
+    q = """
+        INSERT INTO event_categorical_data 
+            (value, friendly_name, meta_data_id)
+        VALUES
+            (1, '1', \$1),
+            (2, '2', \$1),
+            (3, '3', \$1),
+            (4, '4', \$1),
+            (5, '5', \$1),
+            (6, '6', \$1),
+            (7, '7', \$1)
+    """
+    execute(conn, q, [meta_data_id])
+    close(conn)
+end
 
 function create_categorical_data_table()
     conn = Db.get_conn()
@@ -80,30 +100,36 @@ function create_categorical_data_table()
         CREATE TABLE IF NOT EXISTS event_categorical_data (
             id SERIAL PRIMARY KEY,
             value INTEGER NOT NULL,
-            friendly_name TEXT NOT NULL
-        )
+            friendly_name TEXT NOT NULL,
+            meta_data_id INTEGER NOT NULL,
+            foreign key (meta_data_id) references event_meta_data(id) 
+                ON DELETE CASCADE
+                ON UPDATE CASCADE
+        );
     """
     execute(conn, q)
+    initiate_bss_category(conn)
+    close(conn)
 end
 
-
 function create_timestamp_category_table()
-    # e.g nasalspray, bss
+    # e.g bss
     conn = Db.get_conn()
     q = """
         CREATE TABLE IF NOT EXISTS event_timestamp_category (
             timestamp timestamp with time zone not null,
-            FOREIGN KEY (meta_data_id) REFERENCES event_meta_data(id) 
-                NOT NULL
+            meta_data_id integer not null,
+            categorical_data_id integer not null,
+            foreign key (meta_data_id) references event_meta_data(id) 
                 ON DELETE CASCADE
                 ON UPDATE CASCADE,
-            FOREIGN KEY (categorical_data_id) REFERENCES categorical_data(id) 
-                NOT NULL
+            FOREIGN KEY (categorical_data_id) REFERENCES event_categorical_data(id) 
                 ON DELETE CASCADE
                 ON UPDATE CASCADE
         )
     """
     execute(conn, q)
+    close(conn)
 end
 
 struct TimestampDoubleEvent
@@ -126,24 +152,70 @@ function create_timestamp_double_table()
         )
     """
     execute(conn, q)
+    close(conn)
 end
 
 function create_event_tables()
     create_meta_data_table()
-    #create_categorical_data_table()
-    #create_timestamp_category_table()
+    create_categorical_data_table()
+    create_timestamp_category_table()
     create_timestamp_double_table()
 end
 
-function create_timestamp_double_event(req::HTTP.Request)
+function create_timestamp_double_event(meta_id, body)
+    conn = Db.get_conn()
+    q = """
+        INSERT INTO event_timestamp_double (
+            timestamp, meta_data_id, value
+        )
+        VALUES (
+            \$1, \$2, \$3
+        )
+    """
+    execute(conn, q, [body["timestamp"], meta_id, body["value"]])
+    close(conn)
+end
+
+function post_timestamp_double_event(req::HTTP.Request)
     @info "creating timestamp double event"
     body = JSON3.read(String(req.body))
     event_meta_data = get_event_meta(body["meta_data"])
+    if event_meta_data.data.event_table_name != "event_timestamp_double"
+        HTTP.Response(400)
+    end
     @info event_meta_data
     @info body
+    create_timestamp_double_event(event_meta_data.data.id[1], body)
     HTTP.Response(200)
 end
 
-HTTP.register!(App.ROUTER, "POST", "/event/timestamp_double/create", create_timestamp_double_event)
+function create_timestamp_category_event(meta_id, body)
+    conn = Db.get_conn()
+    q = """
+        INSERT INTO event_timestamp_double (
+            timestamp, meta_data_id, value
+        )
+        VALUES (
+            \$1, \$2, \$3
+        )
+    """
+    execute(conn, q, [body["timestamp"], meta_id, body["value"]])
+    close(conn)
+end
+
+function post_timestamp_category_event(req::HTTP.Request)
+    @info "creating timestamp category event"
+    body = JSON3.read(String(req.body))
+    event_meta_data = get_event_meta(body["meta_data"])
+    if event_meta_data.data.event_table_name != "event_timestamp_double"
+        HTTP.Response(400)
+    end
+    @info event_meta_data
+    @info body
+    create_timestamp_double_event(event_meta_data.data.id[1], body)
+    HTTP.Response(200)
+end
+
+HTTP.register!(App.ROUTER, "POST", "/event/timestamp_double/create", post_timestamp_double_event)
 
 end
