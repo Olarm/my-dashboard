@@ -43,7 +43,7 @@ function create_radio(input_data, input_id)
     return input_string
 end
 
-function create_number_input(input_data, input_type, id)
+function create_generic_input(input_data, input_type, id; float=false)
     name = input_data["name"]
     input_string = """
     <label for='$id'>$name</label>
@@ -52,20 +52,9 @@ function create_number_input(input_data, input_type, id)
         id='$id'
         name='$name'
     """
-    input_string *= (input_data["is_nullable"] == "NO" && input_data["data_type"] != "boolean") ? "required" : ""
-    input_string *= " />"
-    return input_string
-end
-
-function create_generic_input(input_data, input_type, id)
-    name = input_data["name"]
-    input_string = """
-    <label for='$id'>$name</label>
-    <input 
-        type='$input_type'
-        id='$id'
-        name='$name'
-    """
+    if float
+        input_string *= "step='any'"
+    end
     input_string *= (input_data["is_nullable"] == "NO" && input_data["data_type"] != "boolean") ? "required" : ""
     input_string *= " />"
     return input_string
@@ -80,8 +69,10 @@ function create_generic_input(input_data, form_id)
         return create_radio(input_data, input_id)
     elseif data_type in ["text", "character varying"]
         return create_generic_input(input_data, "text", input_id)
-    elseif data_type in ["number", "integer", "numeric", "double precision"]
-        return create_number_input(input_data, "number", input_id)
+    elseif data_type == "integer"
+        return create_generic_input(input_data, "number", input_id)
+    elseif data_type in ["number", "numeric", "double precision"]
+        return create_generic_input(input_data, "number", input_id, float=true)
     elseif data_type == "email"
         return create_generic_input(input_data, "email", input_id)
     elseif data_type == "date"
