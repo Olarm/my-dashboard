@@ -3,7 +3,7 @@
 using Pkg
 
 # Activate the project environment
-path = "/opt/my_dashboard/backend"
+path = "/opt/my-dashboard/backend"
 Pkg.activate(path)
 
 include(path*"/app.jl")
