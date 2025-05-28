@@ -214,6 +214,7 @@ include("lib/forms.jl")
 include("lib/medicine.jl")
 include("lib/weight.jl")
 Medicines.create_medicine_tables()
+Weights.create_weight_tables()
 
 
 host = Sockets.localhost

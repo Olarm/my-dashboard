@@ -155,7 +155,6 @@ function serve_forms(req)
         html_content = add_form(html_content, "medicine_administration_log", "medicine-administration-log-form", "/medicine/log/create")
         html_content = add_form(html_content, "sleep_data", "sleep-data-form", "/sleep/create")
         html_content = add_form(html_content, "weight", "weight-form", "/weight/create")
-        html_content = add_form(html_content, "event_timestamp_double", "event-ts-double-form", "/event/timestamp_double/create")
         return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
     end
     return HTTP.Response(501)
