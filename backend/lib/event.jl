@@ -13,6 +13,7 @@ import ..App
 import ..Db
 import ..Templates
 
+
 function initiate_event_meta(conn)
     q = """
         INSERT INTO event_meta_data 
@@ -76,21 +77,19 @@ function create_meta_data_table()
 end
 
 function initiate_bss_category(conn)
-    meta_data = execute(conn, "select id from event_meta_data where short_name = 'bss';") |> DataFrame
-    meta_data_id = meta_data.id[1]
     q = """
         INSERT INTO event_categorical_data 
-            (value, friendly_name, meta_data_id)
+            (value, friendly_name)
         VALUES
-            (1, '1', \$1),
-            (2, '2', \$1),
-            (3, '3', \$1),
-            (4, '4', \$1),
-            (5, '5', \$1),
-            (6, '6', \$1),
-            (7, '7', \$1)
+            (1, '1'),
+            (2, '2'),
+            (3, '3'),
+            (4, '4'),
+            (5, '5'),
+            (6, '6'),
+            (7, '7')
     """
-    execute(conn, q, [meta_data_id])
+    execute(conn, q)
     close(conn)
 end
 
@@ -100,11 +99,7 @@ function create_categorical_data_table()
         CREATE TABLE IF NOT EXISTS event_categorical_data (
             id SERIAL PRIMARY KEY,
             value INTEGER NOT NULL,
-            friendly_name TEXT NOT NULL,
-            meta_data_id INTEGER NOT NULL,
-            foreign key (meta_data_id) references event_meta_data(id) 
-                ON DELETE CASCADE
-                ON UPDATE CASCADE
+            friendly_name TEXT NOT NULL
         );
     """
     execute(conn, q)
@@ -118,14 +113,8 @@ function create_timestamp_category_table()
     q = """
         CREATE TABLE IF NOT EXISTS event_timestamp_category (
             timestamp timestamp with time zone not null,
-            meta_data_id integer not null,
-            categorical_data_id integer not null,
-            foreign key (meta_data_id) references event_meta_data(id) 
-                ON DELETE CASCADE
-                ON UPDATE CASCADE,
-            FOREIGN KEY (categorical_data_id) REFERENCES event_categorical_data(id) 
-                ON DELETE CASCADE
-                ON UPDATE CASCADE
+            categorical_data_id integer not null REFERENCES event_categorical_data(id) ON DELETE RESTRICT,
+            meta_data_id integer not null REFERENCES event_meta_data(id) ON DELETE RESTRICT,
         )
     """
     execute(conn, q)

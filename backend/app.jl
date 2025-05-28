@@ -211,10 +211,8 @@ HTTP.register!(ROUTER, "POST", "/authenticate", Auth.authenticate)
 
 include("lib/sleep.jl")
 include("lib/forms.jl")
-include("lib/event.jl")
 include("lib/medicine.jl")
 include("lib/weight.jl")
-Events.create_event_tables()
 Medicines.create_medicine_tables()
 
 
