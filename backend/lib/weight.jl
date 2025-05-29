@@ -21,15 +21,19 @@ struct Weight
 
     function Weight(data)
         iso_string = get(data, "timestamp", nothing)
-        dt_format = DateFormat("yyyy-mm-ddTHH:MM")
-        dt_naive = DateTime(iso_string, dt_format)
-        zdt_fixed_offset = ZonedDateTime(dt_naive, tz"Europe/Oslo")
-
-        weight = get(data, "weight", nothing)
-        if timestamp == nothing || weight == nothing
+        if iso_string == nothing
             return (ok=false, data=nothing)
         end
-        obj = new(timestamp, weight)
+        dt_format = DateFormat("yyyy-mm-dd HH:MM:SSzzzz")
+        zdt = ZonedDateTime(iso_string, dt_format)
+
+        weight_string = get(data, "weight", nothing)
+        if weight_string == nothing
+            return (ok=false, data=nothing)
+        end
+        weight = parse(Float64, weight_string)
+
+        obj = new(zdt, weight)
         return (ok=true, data=obj)
     end
 end
@@ -79,7 +83,7 @@ function post_weight(req::HTTP.Request)
         @error "Failed to insert weight data."
         return HTTP.Response(400, JSON3.write("bad input"))
     end
-    return HTTP.Response(200, App.get_headers(), JSON3.write(obj))
+    return HTTP.Response(200, App.get_headers(), JSON3.write(weight_result.data))
 end
 
 HTTP.register!(App.ROUTER, "POST", "/weight/create", post_weight)
