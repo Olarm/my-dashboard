@@ -1,6 +1,13 @@
 module App
 
-using HTTP, JSON3, StructTypes, LibPQ, Sockets, Tables, TOML
+using 
+    HTTP, 
+    JSON3, 
+    StructTypes, 
+    LibPQ, 
+    Sockets, 
+    Tables, 
+    TOML
 
 export 
     STATIC_DIR,
