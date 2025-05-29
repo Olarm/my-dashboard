@@ -38,6 +38,15 @@
       data[key] = value;
     }
 
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    Array.from(form.elements).forEach(element => {
+        if (element.type === 'datetime-local' && data[element.name]) {
+            const localDateTime = dateFns.parseISO(data[element.name]);
+            const zonedDateTime = dateFns.toDate(localDateTime);
+            data[element.name] = dateFns.format(zonedDateTime, 'yyyy-MM-dd HH:mm:ssXXX', { timeZone });
+        }
+    });
+
     // Get the action and URL specified in the data attributes
     const action = form.getAttribute('data-action');
     const url = form.getAttribute('data-url');
@@ -65,7 +74,9 @@
       });
 
       if (response.ok) {
-        console.log('Success:', result);
+        console.log('Success:');
+        const data = await response.json();
+        console.log(data);
       } else {
         console.error('Error:', response.statusText);
       }
