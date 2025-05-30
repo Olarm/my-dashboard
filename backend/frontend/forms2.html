@@ -39,11 +39,13 @@
     }
 
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    console.log("Timezone:", timeZone);
     Array.from(form.elements).forEach(element => {
         if (element.type === 'datetime-local' && data[element.name]) {
             const localDateTime = dateFns.parseISO(data[element.name]);
             const zonedDateTime = dateFns.toDate(localDateTime);
             data[element.name] = dateFns.format(zonedDateTime, 'yyyy-MM-dd HH:mm:ssXXX', { timeZone });
+            data[element.name+'_timezone'] = timeZone;
         }
     });
 
