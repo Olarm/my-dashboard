@@ -2,6 +2,9 @@ module Templates
 
 export wrap
 
+using DataFrames
+
+include("template/tables.jl")
 include("template/forms.jl")
 
 using ..App: STATIC_DIR
@@ -62,6 +65,13 @@ function create_form(form_data, form_id, rel_url)
     form *= "</form>"
     return form
 end
+
+function create_form_with_table(form_data, form_id, rel_url, table_data)
+    form = create_form(form_data, form_id, rel_url)
+    table = create_table(table_data)
+    return form * table
+end
+
 
 function wrap(path)
     html_content = read(path, String)
