@@ -6,10 +6,30 @@
   --c4: #EEEEEE;
 }
 
+@font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: url('static/fonts/RobotoMono-Regular.woff2') format('woff2'), /* Ensure these paths match your file names */
+         url('static/fonts/RobotoMono-Regular.woff') format('woff');
+    font-display: swap; /* Recommended for better user experience */
+}
+
+/* Add other weights/styles (e.g., Bold, Italic) as separate @font-face blocks */
+/*@font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 700;
+    src: url('/static/fonts/RobotoMono-Bold.woff2') format('woff2'),
+         url('/static/fonts/RobotoMono-Bold.woff') format('woff');
+    font-display: swap;
+}
+*/
+
 body {
   background-color: var(--c1);
   color: #EEEEEE;
-  font-family: 'Courier New', monospace; 
+  font-family: 'Roboto Mono', 'Courier New', monospace; 
   padding: 20px;
 }
 
