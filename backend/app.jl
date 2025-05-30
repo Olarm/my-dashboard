@@ -167,7 +167,9 @@ function get_mime_type(file_path::String)
         ".js" => "application/javascript",
         ".png" => "image/png",
         ".jpg" => "image/jpeg",
-        ".svg" => "image/svg+xml"
+        ".svg" => "image/svg+xml",
+        ".woff" => "font/woff",
+        ".woff2" => "font/woff2"
     )
     get(mime_types, ext, "application/octet-stream")
 end
