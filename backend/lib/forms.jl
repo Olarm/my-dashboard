@@ -86,7 +86,8 @@ function table_info_query(table_name)
         ON
             c.column_name = fk_ref.column_name AND c.table_name = fk_ref.table_name
         WHERE
-            c.table_name = \$1
+            c.table_name = \$1 AND NOT
+            c.column_name like '%timezone'
         ORDER BY c.ordinal_position;
     """
     params = [table_name]
@@ -143,11 +144,13 @@ end
 
 function add_form(html_content, table_name, form_id, relative_url, get_func=nothing)
     data = create_table_form(table_name)
+    form = nothing
     if get_func != nothing
         last_five = get_func(5)
-        @info last_five
+        form = Templates.create_form_with_table(data, form_id, relative_url, last_five)
+    else
+        form = Templates.create_form(data, form_id, relative_url)
     end
-    form = Templates.create_form(data, form_id, relative_url)
     html_content = Templates.insert_content(html_content, form, form_id)
     return html_content
 end
