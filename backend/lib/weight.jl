@@ -17,7 +17,7 @@ import ..Users
 
 struct Weight
     timestamp::ZonedDateTime
-    timezone::String
+    timestamp_timezone::String
     weight::Float64
 
     function Weight(data)
@@ -65,28 +65,33 @@ function get_weight(n; naive=true)
     conn = Db.get_conn()
     q = """
         SELECT 
-            timestamp, 
+            timestamp,
+            timestamp_timezone,
             weight 
         FROM weight
         ORDER BY timestamp DESC
         LIMIT \$1
     """
     df = execute(conn, q, [n]) |> DataFrame
+    close(conn)
     dropmissing!(df)
-    if naive
-        df.timestamp = DateTime.(df.timestamp)
+    for row in eachrow(df)
+        tz = TimeZone(row.timestamp_timezone, TimeZones.Class(:LEGACY))
+        row.timestamp = astimezone(row.timestamp, tz)
     end
+    select!(df, Not([:timestamp_timezone]))
     return df
 end
 
 function create_weight(weight::Weight, user::Users.User)
+    @info "Creating weight: " weight
     conn = Db.get_conn()
     q = """
         INSERT INTO weight (user_id, timestamp, timestamp_timezone, weight)
         VALUES (\$1, \$2, \$3, \$4)
         ON CONFLICT do nothing
     """
-    execute(conn, q, [user.id, weight.timestamp, weight.timezone, weight.weight])
+    execute(conn, q, [user.id, weight.timestamp, weight.timestamp_timezone, weight.weight])
     close(conn)
     return true
 end
@@ -108,7 +113,12 @@ function post_weight(req::HTTP.Request)
         @error "Failed to insert weight data."
         return HTTP.Response(400, JSON3.write("bad input"))
     end
-    return HTTP.Response(200, App.get_headers(), JSON3.write(weight_result.data))
+
+    return_data = get_weight(1)
+    return_row = Templates.create_table_rows(return_data)
+    data = Dict("insertedRow" => return_row)
+
+    return HTTP.Response(200, App.get_headers(), JSON3.write(data))
 end
 
 HTTP.register!(App.ROUTER, "POST", "/weight/create", post_weight)
