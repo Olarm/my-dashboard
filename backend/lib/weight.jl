@@ -54,6 +54,19 @@ function create_weight_tables()
     return true
 end
 
+function get_weight(n)
+    conn = Db.get_conn()
+    q = """
+        SELECT 
+            timestamp, 
+            weight 
+        FROM weight
+        ORDER BY timestamp DESC
+        LIMIT \$1
+    """
+    return execute(conn, q, [n]) |> DataFrame
+end
+
 function create_weight(weight::Weight, user::Users.User)
     conn = Db.get_conn()
     q = """
