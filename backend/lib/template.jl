@@ -68,7 +68,8 @@ end
 
 function create_form_with_table(form_data, form_id, rel_url, table_data)
     form = create_form(form_data, form_id, rel_url)
-    table = create_table(table_data)
+    table_id = form_id * "_table"
+    table = create_table(table_data, table_id)
     return form * table
 end
 
