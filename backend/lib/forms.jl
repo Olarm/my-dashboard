@@ -10,6 +10,7 @@ using
 import ..Templates
 import ..App
 import ..Db
+import ..Weights
 
 
 function table_info_query(table_name)
@@ -140,8 +141,12 @@ function create_table_form(table_name; user_id=false)
     return data
 end
 
-function add_form(html_content, table_name, form_id, relative_url)
+function add_form(html_content, table_name, form_id, relative_url, get_func=nothing)
     data = create_table_form(table_name)
+    if get_func != nothing
+        last_five = get_func(5)
+        @info last_five
+    end
     form = Templates.create_form(data, form_id, relative_url)
     html_content = Templates.insert_content(html_content, form, form_id)
     return html_content
@@ -154,7 +159,7 @@ function serve_forms(req)
         html_content = wrap_return.html
         html_content = add_form(html_content, "medicine_administration_log", "medicine-administration-log-form", "/medicine/log/create")
         html_content = add_form(html_content, "sleep_data", "sleep-data-form", "/sleep/create")
-        html_content = add_form(html_content, "weight", "weight-form", "/weight/create")
+        html_content = add_form(html_content, "weight", "weight-form", "/weight/create", Weights.get_weight)
         return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
     end
     return HTTP.Response(501)
