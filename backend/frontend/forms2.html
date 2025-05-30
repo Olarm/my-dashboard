@@ -26,10 +26,48 @@
 
 <script>
 
+function addRowAtStart(tableId, rowHtmlString) {
+  const table = document.getElementById(tableId);
+
+  if (!table) {
+    console.error(`Table with ID "${tableId}" not found.`);
+    return;
+  }
+
+  let tableBody = table.querySelector('tbody');
+
+  if (!tableBody) {
+    console.warn(`Table with ID "${tableId}" has no <tbody>. Appending row directly to the table.`);
+    tableBody = table;
+  }
+
+  const trimmedRowString = rowHtmlString.trim();
+
+  const tempTable = document.createElement('table'); // Or document.createElement('tbody');
+  tempTable.innerHTML = `<tbody>${trimmedRowString}</tbody>`; // Wrap the <tr> string in <tbody>
+
+  const newTrElement = tempTable.querySelector('tbody').firstChild; // Get the <tr> from the tbody
+
+  if (!newTrElement || newTrElement.tagName !== 'TR') {
+    console.error("The provided string could not be parsed into a valid <tr> element, even with a temporary table/tbody.");
+    return;
+  }
+
+  if (tableBody.firstChild) {
+    tableBody.insertBefore(newTrElement, tableBody.firstChild);
+  } else {
+    tableBody.appendChild(newTrElement);
+  }
+
+}
+
   async function handleFormSubmission(event) {
     event.preventDefault(); // Prevent the default form submission
 
     const form = event.target;
+    const formId = form["id"];
+    const tableId = formId + '_table';
+    console.log("form: ", form);
     const formData = new FormData(form);
     const data = {};
 
@@ -55,14 +93,14 @@
 
     // Call the appropriate function based on the action
     if (action === 'processForm') {
-      await processForm(data, url);
+      await processForm(tableId, data, url);
     } else {
       console.error('Unknown action:', action);
     }
   }
 
   // Function to process form data and submit to the specified URL
-  async function processForm(data, url) {
+  async function processForm(tableId, data, url) {
     console.log('Form data:', data);
     console.log('Submission URL:', url);
 
@@ -77,8 +115,13 @@
 
       if (response.ok) {
         console.log('Success:');
-        const data = await response.json();
-        console.log(data);
+        const returnData = await response.json();
+        console.log("RETURNED; ", returnData);
+        const insertedRow = returnData.insertedRow;
+        if (!insertedRow) {
+          return;
+        }
+        addRowAtStart(tableId, insertedRow);
       } else {
         console.error('Error:', response.statusText);
       }
