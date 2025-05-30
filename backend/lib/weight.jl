@@ -17,6 +17,7 @@ import ..Users
 
 struct Weight
     timestamp::ZonedDateTime
+    timezone::String
     weight::Float64
 
     function Weight(data)
@@ -27,13 +28,18 @@ struct Weight
         dt_format = DateFormat("yyyy-mm-dd HH:MM:SSzzzz")
         zdt = ZonedDateTime(iso_string, dt_format)
 
+        timezone = get(data, "timestamp_timezone", nothing)
+        if timezone == nothing
+            return (ok=false, data=nothing)
+        end
+
         weight_string = get(data, "weight", nothing)
         if weight_string == nothing
             return (ok=false, data=nothing)
         end
         weight = parse(Float64, weight_string)
 
-        obj = new(zdt, weight)
+        obj = new(zdt, timezone, weight)
         return (ok=true, data=obj)
     end
 end
@@ -45,6 +51,7 @@ function create_weight_tables()
             id SERIAL PRIMARY KEY,
             user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
             timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+            timestamp_timezone TEXT NOT NULL,
             weight DOUBLE PRECISION NOT NULL,
             unique(user_id, timestamp)
         );
@@ -54,7 +61,7 @@ function create_weight_tables()
     return true
 end
 
-function get_weight(n)
+function get_weight(n; naive=true)
     conn = Db.get_conn()
     q = """
         SELECT 
@@ -64,17 +71,22 @@ function get_weight(n)
         ORDER BY timestamp DESC
         LIMIT \$1
     """
-    return execute(conn, q, [n]) |> DataFrame
+    df = execute(conn, q, [n]) |> DataFrame
+    dropmissing!(df)
+    if naive
+        df.timestamp = DateTime.(df.timestamp)
+    end
+    return df
 end
 
 function create_weight(weight::Weight, user::Users.User)
     conn = Db.get_conn()
     q = """
-        INSERT INTO weight (user_id, timestamp, weight)
-        VALUES (\$1, \$2, \$3)
+        INSERT INTO weight (user_id, timestamp, timestamp_timezone, weight)
+        VALUES (\$1, \$2, \$3, \$4)
         ON CONFLICT do nothing
     """
-    execute(conn, q, [user.id, weight.timestamp, weight.weight])
+    execute(conn, q, [user.id, weight.timestamp, weight.timezone, weight.weight])
     close(conn)
     return true
 end
