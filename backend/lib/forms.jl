@@ -11,6 +11,7 @@ import ..Templates
 import ..App
 import ..Db
 import ..Weights
+import ..Sleep
 
 
 function table_info_query(table_name)
@@ -161,7 +162,7 @@ function serve_forms(req)
     if wrap_return.ok
         html_content = wrap_return.html
         html_content = add_form(html_content, "medicine_administration_log", "medicine-administration-log-form", "/medicine/log/create")
-        html_content = add_form(html_content, "sleep_data", "sleep-data-form", "/sleep/create")
+        html_content = add_form(html_content, "sleep_data", "sleep-data-form", "/sleep/create", Sleep.get_sleep_data)
         html_content = add_form(html_content, "weight", "weight-form", "/weight/create", Weights.get_weight)
         return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
     end
