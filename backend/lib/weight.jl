@@ -61,7 +61,7 @@ function create_weight_tables()
     return true
 end
 
-function get_weight(n; naive=true)
+function get_weight(n, user_id)
     conn = Db.get_conn()
     q = """
         SELECT 
@@ -114,7 +114,7 @@ function post_weight(req::HTTP.Request)
         return HTTP.Response(400, JSON3.write("bad input"))
     end
 
-    return_data = get_weight(1)
+    return_data = get_weight(1, user.id)
     return_row = Templates.create_table_rows(return_data)
     data = Dict("insertedRow" => return_row)
 
