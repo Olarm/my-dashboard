@@ -179,6 +179,27 @@ function get_sleep_form(req::HTTP.Request)
     HTTP.Response(200, App.get_headers(), JSON3.write(data))
 end
 
+function get_sleep_data(n)
+    conn = Db.get_conn()
+    q = """
+        SELECT 
+            date, 
+            location, 
+            room, 
+            twin_bed, 
+            mouth_tape, 
+            nose_magnet,
+            nose_magnet_off
+        FROM sleep_data
+        ORDER BY date DESC
+        LIMIT \$1;
+    """
+    df = execute(conn, q, [n]) |> DataFrame
+    close(conn)
+    dropmissing!(df)
+    return df
+end
+
 function create_sleep_data(req::HTTP.Request)
     body = JSON3.read(String(req.body))
     obj = SleepData(body)
