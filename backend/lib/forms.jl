@@ -12,6 +12,8 @@ import ..App
 import ..Db
 import ..Weights
 import ..Sleep
+import ..Medicines
+import ..Users
 
 
 function table_info_query(table_name)
@@ -143,27 +145,30 @@ function create_table_form(table_name; user_id=false)
     return data
 end
 
-function add_form(html_content, table_name, form_id, relative_url, get_func=nothing)
+function add_form(html_content, table_name, form_id, relative_url)
     data = create_table_form(table_name)
-    form = nothing
-    if get_func != nothing
-        last_five = get_func(5)
-        form = Templates.create_form_with_table(data, form_id, relative_url, last_five)
-    else
-        form = Templates.create_form(data, form_id, relative_url)
-    end
+    form = Templates.create_form(data, form_id, relative_url)
+    html_content = Templates.insert_content(html_content, form, form_id)
+    return html_content
+end
+
+function add_form(html_content, table_name, form_id, relative_url, get_func, user::Users.User)
+    data = create_table_form(table_name)
+    last_five = get_func(5, user.id)
+    form = Templates.create_form_with_table(data, form_id, relative_url, last_five)
     html_content = Templates.insert_content(html_content, form, form_id)
     return html_content
 end
 
 function serve_forms(req)
+    user = req.context[:user]
     html_path = joinpath(App.STATIC_DIR, "forms2.html")
     wrap_return = Templates.wrap(html_path)
     if wrap_return.ok
         html_content = wrap_return.html
-        html_content = add_form(html_content, "medicine_administration_log", "medicine-administration-log-form", "/medicine/log/create")
-        html_content = add_form(html_content, "sleep_data", "sleep-data-form", "/sleep/create", Sleep.get_sleep_data)
-        html_content = add_form(html_content, "weight", "weight-form", "/weight/create", Weights.get_weight)
+        html_content = add_form(html_content, "medicine_administration_log", "medicine-administration-log-form", "/medicine/log/create", Medicines.get_medicine_administration_log, user)
+        html_content = add_form(html_content, "sleep_data", "sleep-data-form", "/sleep/create", Sleep.get_sleep_data, user)
+        html_content = add_form(html_content, "weight", "weight-form", "/weight/create", Weights.get_weight, user)
         return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
     end
     return HTTP.Response(501)
