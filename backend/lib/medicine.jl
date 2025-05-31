@@ -25,9 +25,26 @@ end
 
 function get_administration_log_form(req::HTTP.Request)
     form = Forms.create_table_form("medicine_administration_log")
-    
-
     HTTP.Response(200, App.get_headers(), JSON3.write(form))
+end
+
+function get_administration_log(n, user_id)
+    conn = Db.get_conn()
+    q = """
+        SELECT 
+            a.administration_time,
+            m.name,
+            a.dosage
+        FROM medicine_administration_log a
+        LEFT JOIN medicine_medicine m
+            ON m.id = a.medicine_id
+        WHERE a.user_id = \$1
+        ORDER BY a.administration_time DESC
+        LIMIT \$2;
+    """
+    df = execute(conn, q, [user_id, n])
+    close(conn)
+    return df
 end
 
 function create_medicine_log(req::HTTP.Request)
