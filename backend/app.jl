@@ -65,7 +65,13 @@ function JSON_middleware(handler)
 end
 
 function auth_middleware(handler)
-    allowed = ("/login", "/authenticate", "/static/style.css")
+    allowed = (
+        "/login", 
+        "/authenticate", 
+        "/static/style.css",
+        "/static/fonts/RobotoMono-Regular.woff",
+        "/static/fonts/RobotoMono-Regular.woff2"
+    )
 
     @info "auth middleware"
     return function(req)
@@ -160,7 +166,7 @@ function test_form_submit(req)
 end
 
 function get_mime_type(file_path::String)
-    ext = splitext(file_path)[2]
+    ext = splitext(file_path)[end]
     mime_types = Dict(
         ".css" => "text/css",
         ".html" => "text/html",
