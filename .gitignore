@@ -3,3 +3,7 @@ tcx
 *.tcx
 *.TCX
 *.Tcx
+*.swp
+
+data/
+scripts/
