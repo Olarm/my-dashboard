@@ -227,9 +227,11 @@ HTTP.register!(ROUTER, "POST", "/authenticate", Auth.authenticate)
 include("lib/sleep.jl")
 include("lib/medicine.jl")
 include("lib/weight.jl")
+include("lib/bss.jl")
 include("lib/forms.jl")
 Medicines.create_medicine_tables()
 Weights.create_weight_tables()
+Bsss.create_bss_tables()
 
 
 host = Sockets.localhost

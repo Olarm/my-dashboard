@@ -13,6 +13,7 @@ import ..Db
 import ..Weights
 import ..Sleep
 import ..Medicines
+import ..Bsss
 import ..Users
 
 
@@ -169,6 +170,7 @@ function serve_forms(req)
         html_content = add_form(html_content, "medicine_administration_log", "medicine-administration-log-form", "/medicine/log/create", Medicines.get_medicine_administration_log, user)
         html_content = add_form(html_content, "sleep_data", "sleep-data-form", "/sleep/create", Sleep.get_sleep_data, user)
         html_content = add_form(html_content, "weight", "weight-form", "/weight/create", Weights.get_weight, user)
+        html_content = add_form(html_content, "bss", "bss-form", "/bss/create", Bsss.get_bss, user)
         return HTTP.Response(200, Dict("Content-Type" => "text/html"), html_content)
     end
     return HTTP.Response(501)
