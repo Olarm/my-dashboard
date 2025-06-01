@@ -28,7 +28,7 @@ function get_administration_log_form(req::HTTP.Request)
     HTTP.Response(200, App.get_headers(), JSON3.write(form))
 end
 
-function get_administration_log(n, user_id)
+function get_medicine_administration_log(n, user_id)
     conn = Db.get_conn()
     q = """
         SELECT 
@@ -42,7 +42,7 @@ function get_administration_log(n, user_id)
         ORDER BY a.administration_time DESC
         LIMIT \$2;
     """
-    df = execute(conn, q, [user_id, n])
+    df = execute(conn, q, [user_id, n]) |> DataFrame
     close(conn)
     return df
 end
