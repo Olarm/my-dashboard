@@ -200,7 +200,7 @@ function get_sleep_data(n, user_id)
     return df
 end
 
-function create_sleep_data(req::HTTP.Request)
+function post_sleep_data(req::HTTP.Request)
     body = JSON3.read(String(req.body))
     obj = SleepData(body)
     result = upsert_sleep_data(obj)
@@ -208,9 +208,14 @@ function create_sleep_data(req::HTTP.Request)
         @info "Sleep data inserted successfully."
     else
         @error "Failed to insert sleep data."
-        return HTTP.Response(400, "bad input")
+        return HTTP.Response(400, JSON3.write("bad input"))
     end
-    return HTTP.Response(200)
+
+    return_data = get_sleep_data(1, req.context[:user].id)
+    return_row = Templates.create_table_rows(return_data)
+    data = Dict("insertedRow" => return_row)
+    
+    return HTTP.Response(200, App.get_headers(), JSON3.write(data))
 end
 
 function get_missing_sleep_dates(req::HTTP.Request)
@@ -233,7 +238,7 @@ end
 
 HTTP.register!(App.ROUTER, "GET", "/sleep/dashboard", serve_sleep_dashboard)
 HTTP.register!(App.ROUTER, "GET", "/sleep/list", get_sleep_list)
-HTTP.register!(App.ROUTER, "POST", "/sleep/create", create_sleep_data)
+HTTP.register!(App.ROUTER, "POST", "/sleep/create", post_sleep_data)
 HTTP.register!(App.ROUTER, "GET", "/sleep/form-data", get_sleep_form)
 HTTP.register!(App.ROUTER, "GET", "/sleep/form", serve_sleep_form)
 @info "sleep added to router"
