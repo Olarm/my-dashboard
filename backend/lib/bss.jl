@@ -44,7 +44,6 @@ struct Bss
         secondary_string = strip(secondary_string)
         secondary = nothing
         if isa(secondary_string, String)
-            @info secondary_string
             secondary = parse(Int, secondary_string)
         end
 
@@ -95,7 +94,6 @@ function get_bss(n, user_id)
 end
 
 function create_bss(bss::Bss, user::Users.User)
-    @info "Creating bss: " bss
     conn = Db.get_conn()
     if bss.secondary != nothing
         q = """
@@ -118,19 +116,16 @@ end
 
 function post_bss(req::HTTP.Request)
     body = JSON3.read(String(req.body))
-    @info body
     bss_result = Bss(body)
     if !bss_result.ok
-        @error "Failed to create BSS data."
+        @error "Failed to create BSS data with data: $body"
         return HTTP.Response(400, JSON3.write("bad input"))
     end
 
     user = req.context[:user]
     result = create_bss(bss_result.data, user)
-    if result == true
-        @info "BSS inserted successfully."
-    else
-        @error "Failed to insert BSS data."
+    if result != true
+        @error "Failed to insert BSS data with object: $bss_result"
         return HTTP.Response(400, JSON3.write("bad input"))
     end
 
