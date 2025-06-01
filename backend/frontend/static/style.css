@@ -10,8 +10,8 @@
     font-family: 'Roboto Mono';
     font-style: normal;
     font-weight: 400;
-    src: url('static/fonts/RobotoMono-Regular.woff2') format('woff2'), /* Ensure these paths match your file names */
-         url('static/fonts/RobotoMono-Regular.woff') format('woff');
+    src: url('fonts/RobotoMono-Regular.woff2') format('woff2'), /* Ensure these paths match your file names */
+         url('fonts/RobotoMono-Regular.woff') format('woff');
     font-display: swap; /* Recommended for better user experience */
 }
 
