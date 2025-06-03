@@ -1,24 +1,13 @@
-module Food
+module Foods
 
-using DataFrames, Statistics
-
+using 
+    DataFrames, 
+    Statistics, 
+    LibPQ
 
 import ..Db
 
-
-function create_nutrient_table()
-    conn = Db.get_conn()
-    q = """
-        CREATE TABLE IF NOT EXISTS nutrients (
-            id SERIAL PRIMARY KEY,
-            unit_id INT NOT NULL REFERENCES units(id),
-            name TEXT NOT NULL,
-            short_name TEXT NOT NULL
-        )
-
-    """
-    close(conn)
-end
+include("food/create_tables.jl")
 
 
 function calories_in_out()

@@ -31,7 +31,7 @@ include("lib/food.jl")
 
 #using Main.SleepAnalysis
 using .Db
-using .Food
+using .Foods
 #using Main.StatisticAnalysis
 
 include("lib/users.jl")
@@ -235,6 +235,7 @@ include("lib/forms.jl")
 Medicines.create_medicine_tables()
 Weights.create_weight_tables()
 Bsss.create_bss_tables()
+Foods.create_food_tables()
 
 
 host = Sockets.localhost
