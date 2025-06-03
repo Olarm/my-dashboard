@@ -71,6 +71,7 @@ function auth_middleware(handler)
         "/login", 
         "/authenticate", 
         "/static/style.css",
+        "/static/form.css",
         "/static/fonts/RobotoMono-Regular.woff",
         "/static/fonts/RobotoMono-Regular.woff2"
     )
