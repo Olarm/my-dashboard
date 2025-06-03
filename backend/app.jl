@@ -25,6 +25,7 @@ config = get_config()
 
 include("lib/template.jl")
 include("lib/Db.jl")
+include("lib/units.jl")
 include("lib/nasalspray.jl")
 include("lib/food.jl")
 
@@ -35,6 +36,7 @@ using .Food
 
 include("lib/users.jl")
 
+Units.create_unit_table()
 NasalSprays.create_tables()
 
 
