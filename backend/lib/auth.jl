@@ -75,7 +75,7 @@ function authenticate(req::HTTP.Request)
         end
 
         content = [
-            "Location" => "/dashboard", 
+            "Location" => "/forms", 
             "Set-Cookie" => set_cookie
             #"Set-Cookie" => "token=$token; HttpOnly; Secure; Path=/; SameSite=Lax"
         ]
