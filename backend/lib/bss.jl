@@ -43,7 +43,7 @@ struct Bss
         secondary_string = get(data, "secondary_score", nothing)
         secondary_string = strip(secondary_string)
         secondary = nothing
-        if isa(secondary_string, String)
+        if isa(secondary_string, SubString)
             secondary = parse(Int, secondary_string)
         end
 
