@@ -27,11 +27,11 @@ include("lib/template.jl")
 include("lib/Db.jl")
 include("lib/units.jl")
 include("lib/nasalspray.jl")
-include("lib/food.jl")
+include("lib/nutrition.jl")
 
 #using Main.SleepAnalysis
 using .Db
-using .Foods
+using .Nutrition
 #using Main.StatisticAnalysis
 
 include("lib/users.jl")
@@ -235,7 +235,7 @@ include("lib/forms.jl")
 Medicines.create_medicine_tables()
 Weights.create_weight_tables()
 Bsss.create_bss_tables()
-Foods.create_food_tables()
+Nutrition.create_nutrition_tables()
 
 
 host = Sockets.localhost

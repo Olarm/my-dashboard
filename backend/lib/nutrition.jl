@@ -1,4 +1,4 @@
-module Foods
+module Nutrition
 
 using 
     DataFrames, 
@@ -7,7 +7,7 @@ using
 
 import ..Db
 
-include("food/create_tables.jl")
+include("nutrition/create_tables.jl")
 
 
 function calories_in_out()

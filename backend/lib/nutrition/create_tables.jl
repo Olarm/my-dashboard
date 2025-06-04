@@ -130,23 +130,23 @@ function initiate_nutrients(conn)
         if length(n) == 4
             @info n
             q = """
-                INSERT INTO foods_nutrients (unit_id, name, short_name, category_id)
+                INSERT INTO nutrition_nutrients (unit_id, name, short_name, category_id)
                 VALUES (
                     (SELECT id FROM units WHERE name = \$1),
                     \$2, \$3,
-                    (SELECT id FROM foods_nutrient_categories WHERE name = \$4)
+                    (SELECT id FROM nutrition_nutrient_categories WHERE name = \$4)
                 )
                 ON CONFLICT DO NOTHING
             """
             execute(conn, q, n)
         elseif length(n) == 5
             q = """
-                INSERT INTO foods_nutrients (unit_id, name, short_name, parent_nutrient_id, category_id)
+                INSERT INTO nutrition_nutrients (unit_id, name, short_name, parent_nutrient_id, category_id)
                 VALUES (
                     (SELECT id FROM units WHERE name = \$1),
                     \$2, \$3,
-                    (SELECT id FROM foods_nutrients WHERE name = \$4),
-                    (SELECT id FROM foods_nutrient_categories WHERE name = \$5)
+                    (SELECT id FROM nutrition_nutrients WHERE name = \$4),
+                    (SELECT id FROM nutrition_nutrient_categories WHERE name = \$5)
                 )
                 ON CONFLICT DO NOTHING
             """
@@ -159,7 +159,7 @@ end
 
 function create_nutrient_category_table(conn)
     q = """
-        CREATE TABLE IF NOT EXISTS foods_nutrient_categories (
+        CREATE TABLE IF NOT EXISTS nutrition_nutrient_categories (
             id SERIAL PRIMARY KEY,
             name TEXT NOT NULL UNIQUE,
             description TEXT -- Optional: if you want to add more detail to categories later
@@ -167,7 +167,7 @@ function create_nutrient_category_table(conn)
     """
     execute(conn, q)
     q = """
-        INSERT INTO foods_nutrient_categories (name) VALUES
+        INSERT INTO nutrition_nutrient_categories (name) VALUES
             ('Energy'),
             ('Macronutrients'),
             ('Fats & Lipids'),
@@ -187,13 +187,13 @@ end
 
 function create_nutrient_table(conn)
     q = """
-        CREATE TABLE IF NOT EXISTS foods_nutrients (
+        CREATE TABLE IF NOT EXISTS nutrition_nutrients (
             id SERIAL PRIMARY KEY,
             unit_id INT NOT NULL REFERENCES units(id),
             name TEXT UNIQUE NOT NULL,
             short_name TEXT UNIQUE NOT NULL,
-            parent_nutrient_id INT REFERENCES foods_nutrients(id),
-            category_id INT REFERENCES foods_nutrient_categories(id) NOT NULL
+            parent_nutrient_id INT REFERENCES nutrition_nutrients(id),
+            category_id INT REFERENCES nutrition_nutrient_categories(id) NOT NULL
         )
     """
     execute(conn, q)
@@ -202,7 +202,7 @@ end
 
 function create_food_databases_table(conn)
     q = """
-        CREATE TABLE IF NOT EXISTS foods_source_databases (
+        CREATE TABLE IF NOT EXISTS nutrition_source_databases (
             id SERIAL PRIMARY KEY,
             name TEXT NOT NULL UNIQUE,
             name_short TEXT NOT NULL UNIQUE
@@ -210,7 +210,7 @@ function create_food_databases_table(conn)
     """
     execute(conn, q)
     q = """
-        INSERT INTO foods_source_databases (name, name_short)
+        INSERT INTO nutrition_source_databases (name, name_short)
         VALUES 
             ('Custom', 'Custom'),
             ('Swiss Food Composition Database', 'SFCD'),
@@ -223,7 +223,7 @@ end
 
 function create_food_categories_table(conn)
     q = """
-        CREATE TABLE IF NOT EXISTS foods_food_categories (
+        CREATE TABLE IF NOT EXISTS nutrition_food_categories (
             id SERIAL PRIMARY KEY,
             name TEXT NOT NULL UNIQUE
         );
@@ -231,7 +231,7 @@ function create_food_categories_table(conn)
     execute(conn, q)
 
     q = """
-        INSERT INTO foods_food_categories (name) VALUES
+        INSERT INTO nutrition_food_categories (name) VALUES
         ('Milk and dairy products'),
         ('Eggs'),
         ('Fats and oils'),
@@ -286,12 +286,12 @@ function create_foods_table(conn)
     """
     execute(conn, q)
     q = """
-        CREATE TABLE IF NOT EXISTS foods_foods (
+        CREATE TABLE IF NOT EXISTS nutrition_foods (
             id SERIAL PRIMARY KEY,
             name TEXT NOT NULL UNIQUE,
             description TEXT,
             processing food_processing_level NOT NULL,
-            source_database_id INT REFERENCES foods_source_databases(id)
+            source_database_id INT REFERENCES nutrition_source_databases(id)
         );
     """
     execute(conn, q)
@@ -299,9 +299,9 @@ end
 
 function create_food_nutrients_table(conn)
     q = """
-        CREATE TABLE IF NOT EXISTS foods_foods_nutrients (
-            food_id INT NOT NULL REFERENCES foods_foods(id),
-            nutrient_id INT NOT NULL REFERENCES foods_nutrients(id),
+        CREATE TABLE IF NOT EXISTS nutrition_foods_nutrients (
+            food_id INT NOT NULL REFERENCES nutrition_foods(id),
+            nutrient_id INT NOT NULL REFERENCES nutrition_nutrients(id),
             amount NUMERIC NOT NULL, -- Amount of the nutrient per standard serving (e.g., per 100g)
             PRIMARY KEY (food_id, nutrient_id)
         );
@@ -311,9 +311,9 @@ end
 
 function create_food_composition_table(conn)
     q = """
-        CREATE TABLE IF NOT EXISTS foods_compositions (
-            composite_food_id INT NOT NULL REFERENCES foods_foods(id) ON DELETE CASCADE,
-            component_food_id INT NOT NULL REFERENCES foods_foods(id) ON DELETE CASCADE,
+        CREATE TABLE IF NOT EXISTS nutrition_compositions (
+            composite_food_id INT NOT NULL REFERENCES nutrition_foods(id) ON DELETE CASCADE,
+            component_food_id INT NOT NULL REFERENCES nutrition_foods(id) ON DELETE CASCADE,
             quantity NUMERIC NOT NULL,
             unit_id INT NOT NULL REFERENCES units(id),
             PRIMARY KEY (composite_food_id, component_food_id), -- A composite food can only contain a specific component once
@@ -324,9 +324,9 @@ end
 
 function create_consumption_table(conn)
     q = """
-        CREATE TABLE IF NOT EXISTS foods_consumed (
+        CREATE TABLE IF NOT EXISTS nutrition_consumed (
             id SERIAL PRIMARY KEY,
-            food_id INT NOT NULL REFERENCES foods_foods(id),
+            food_id INT NOT NULL REFERENCES nutrition_foods(id),
             quantity NUMERIC NOT NULL, -- Quantity of the food consumed (e.g., in grams)
             unit_id INT NOT NULL REFERENCES units(id), -- Unit for the quantity (e.g., grams, ml)
             consumption_datetime TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -334,7 +334,7 @@ function create_consumption_table(conn)
     """
 end
 
-function create_food_tables()
+function create_nutrition_tables()
     conn = Db.get_conn()
     create_nutrient_category_table(conn)
     create_nutrient_table(conn)
