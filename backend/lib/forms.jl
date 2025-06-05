@@ -134,12 +134,9 @@ function create_table_form(table_name; user_id=false)
             row_dict[col] = row[i]
         end
         if row[6] == true
-            @info "ITS A FOREIGN KEY"
             foreigns = get_foreign_options(row[7])
-            @info foreigns
             row_dict["data_type"] = "options"
             row_dict["options"] = ["$(r.id) $(r.name)" for r in eachrow(foreigns.data)]
-            #"$(foreigns.data.id) $(foreigns.data.name)"
         end
         push!(data, row_dict)
     end

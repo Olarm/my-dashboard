@@ -46,6 +46,7 @@ function verify_jwt_token(req::HTTP.Request)
             return (ok=false, payload=nothing)
         end
     end
+    @info "No token in request"
     return (ok=false, payload=nothing)
 end
 
