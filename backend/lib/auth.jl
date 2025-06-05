@@ -33,15 +33,12 @@ function verify_jwt_token(req::HTTP.Request)
     if occursin("token=", cookie_header)
         token = split(cookie_header, "token=")[2]
         token = split(token, ";")[1]  # Remove any additional cookie attributes
-        @info "Parsing token"
         try
             encoding = JSONWebTokens.HS256(SECRET_KEY)
             payload = JSONWebTokens.decode(encoding, token)
             if time() > (get(payload, "iat", 0) + cookie_time)
-                @info "Token ok"
                 return (ok=false, payload=nothing)
             else
-                @info "Token outdated"
                 return (ok=true, payload=payload)
             end
         catch e
@@ -49,7 +46,6 @@ function verify_jwt_token(req::HTTP.Request)
             return (ok=false, payload=nothing)
         end
     end
-    @info "No token in request"
     return (ok=false, payload=nothing)
 end
 
