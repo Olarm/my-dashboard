@@ -72,16 +72,16 @@ function authenticate(req::HTTP.Request)
 
     if name == "admin" && password == "secret"
         user_id = 1
+        const MAX_AGE_SECONDS = 3600 * 24 * 100 # 100 days
         token = generate_jwt(name, "$user_id")
-        set_cookie = "token=$token; HttpOnly; Secure; Path=/; SameSite=Lax"
-        if App.config["environment"] == "local"
-            set_cookie = "token=$token; HttpOnly; Path=/; SameSite=Lax"
+        set_cookie_header = "token=$token; HttpOnly; Path=/; SameSite=Lax; Max-Age=$(MAX_AGE_SECONDS)"
+        if App.config["environment"] != "local"
+            set_cookie_header = "$(set_cookie_header); Secure"
         end
 
         content = [
             "Location" => "/forms", 
-            "Set-Cookie" => set_cookie
-            #"Set-Cookie" => "token=$token; HttpOnly; Secure; Path=/; SameSite=Lax"
+            "Set-Cookie" => set_cookie_header
         ]
         return HTTP.Response(302, content)
     else
