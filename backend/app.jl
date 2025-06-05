@@ -78,10 +78,11 @@ function auth_middleware(handler)
 
     @info "auth middleware"
     return function(req)
+        auth = Auth.verify_jwt_token(req)
+        Auth.log_request(req, auth)
         if req.target in allowed
             return handler(req)
         end
-        auth = Auth.verify_jwt_token(req)
         if !auth.ok
             return HTTP.Response(401, "unauthorized")
         else
