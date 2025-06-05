@@ -154,7 +154,7 @@ function get_activity(req)
 end
 
 function get_calories(req)
-    df = Food.calories_in_out()
+    df = Nutrition.calories_in_out()
     data = Tables.columntable(df)
     HTTP.Response(200, get_headers(), JSON3.write(data))
 end

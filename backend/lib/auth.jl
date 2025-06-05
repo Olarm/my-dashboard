@@ -64,19 +64,19 @@ function authenticate(req::HTTP.Request)
     data = JSON3.read(String(req.body))
     name = get(data, "name", "")
     password = get(data, "password", "")
-    redirect_url = "/dashboard"
+    redirect_url = "/forms"
 
     if name == "admin" && password == "secret"
         user_id = 1
         max_age_seconds = 3600 * 24 * 100 # 100 days
         token = generate_jwt(name, "$user_id")
-        set_cookie_header = "token=$token; HttpOnly; Path=/; SameSite=Lax; Max-Age=$(MAX_AGE_SECONDS)"
+        set_cookie_header = "token=$token; HttpOnly; Path=/; SameSite=Lax; Max-Age=$(max_age_seconds)"
         if App.config["environment"] != "local"
             set_cookie_header = "$(set_cookie_header); Secure"
         end
 
         content = [
-            "Location" => "/forms", 
+            "Location" => redirect_url, 
             "Set-Cookie" => set_cookie_header
         ]
         return HTTP.Response(302, content)
