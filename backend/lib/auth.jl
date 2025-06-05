@@ -6,6 +6,10 @@ import JSONWebTokens
 using ..App
 using ..Templates: wrap
 
+import ..Db
+
+include("auth/create_tables.jl")
+
 export
     authenticate,
     login_page,
@@ -49,6 +53,27 @@ function verify_jwt_token(req::HTTP.Request)
     return (ok=false, payload=nothing)
 end
 
+function log_request(req::HTTP.Request, auth)
+    @info auth
+    http_method = req.method
+    request_url_path = req.target
+    query_parameters = HTTP.URI(req.target).query
+    http_protocol_version = string(req.version.major, ".", req.version.minor)
+    user_agent = HTTP.header(req, "User-Agent", "")
+    content_type = HTTP.header(req, "Content-Type", "")
+    content_length = HTTP.header(req, "Content-Length", "")
+    accept_header = HTTP.header(req, "Accept", "")
+    
+    @info http_method
+    @info request_url_path
+    @info query_parameters
+    @info http_protocol_version
+    @info user_agent
+    @info content_type
+    @info content_length
+    @info accept_header
+
+end
 
 function login_page(req::HTTP.Request)
     html_path = joinpath(App.STATIC_DIR, "auth/login.html")
