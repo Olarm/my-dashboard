@@ -128,7 +128,6 @@ function initiate_nutrients(conn)
 
     for n in nutrients
         if length(n) == 4
-            @info n
             q = """
                 INSERT INTO nutrition_nutrients (unit_id, name, short_name, category_id)
                 VALUES (
