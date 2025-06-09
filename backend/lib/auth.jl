@@ -53,26 +53,58 @@ function verify_jwt_token(req::HTTP.Request)
     return (ok=false, payload=nothing)
 end
 
-function log_request(req::HTTP.Request, auth)
-    @info auth
-    http_method = req.method
-    request_url_path = req.target
-    query_parameters = HTTP.URI(req.target).query
-    http_protocol_version = string(req.version.major, ".", req.version.minor)
-    user_agent = HTTP.header(req, "User-Agent", "")
-    content_type = HTTP.header(req, "Content-Type", "")
-    content_length = HTTP.header(req, "Content-Length", "")
-    accept_header = HTTP.header(req, "Accept", "")
-    
-    @info http_method
-    @info request_url_path
-    @info query_parameters
-    @info http_protocol_version
-    @info user_agent
-    @info content_type
-    @info content_length
-    @info accept_header
+function create_request_log_table(conn)
+    q = """
+        CREATE TABLE IF NOT EXISTS auth_request_log (
+            id SERIAL PRIMARY KEY,
+            http_method TEXT NOT NULL,
+            request_url_path TEXT NOT NULL,
+            query_parameters TEXT NOT NULL,
+            http_protocol_version TEXT NOT NULL,
+            user_agent TEXT,
+            content_type TEXT,
+            content_length TEXT,
+            accept_header TEXT
+        )
+    """
+    execute(conn, q)
+end
 
+function log_request(req::HTTP.Request, auth)
+    function truncate_string(s::String, max_len::Int)
+        if length(s) > max_len
+            return first(s, max_len - 3) * "..." # -3 for "..."
+        else
+            return s
+        end
+    end
+
+    params = [
+        req.method
+        req.target
+        HTTP.URI(req.target).query
+        string(req.version.major, ".", req.version.minor)
+        HTTP.header(req, "User-Agent", "")
+        HTTP.header(req, "Content-Type", "")
+        HTTP.header(req, "Content-Length", "")
+        HTTP.header(req, "Accept", "")
+    ]
+    params = [truncate_string(i, 256) for i in params]
+
+    q = """
+        INSERT INTO auth_request_log (
+            http_method,
+            request_url_path,
+            query_parameters,
+            http_protocol_version,
+            user_agent,
+            content_type,
+            content_length,
+            accept_header
+        )
+        VALUES (\$1,\$2,\$3,\$4,\$5,\$6,\$7,\$8)
+    """
+    execute(conn, q, params)
 end
 
 function login_page(req::HTTP.Request)
@@ -108,6 +140,12 @@ function authenticate(req::HTTP.Request)
     else
         return HTTP.Response(401, JSON3.write(Dict("error" => "Invalid credentials")))
     end
+end
+
+function create_auth_tables()
+    conn = Db.get_conn()
+    create_request_log_table(conn)
+    close(conn)
 end
 
 
