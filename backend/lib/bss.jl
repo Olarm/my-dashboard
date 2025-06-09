@@ -13,6 +13,7 @@ import ..App
 import ..Db
 import ..Forms
 import ..Users
+import ..Utils
 
 
 struct Bss
@@ -42,10 +43,7 @@ struct Bss
 
         secondary_string = get(data, "secondary_score", nothing)
         secondary_string = strip(secondary_string)
-        secondary = nothing
-        if isa(secondary_string, SubString)
-            secondary = parse(Int, secondary_string)
-        end
+        secondary = Utils.parse_nullable_integer(secondary_string)
 
         obj = new(zdt, timezone, bss, secondary)
         return (ok=true, data=obj)
