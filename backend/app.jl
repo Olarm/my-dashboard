@@ -86,12 +86,11 @@ function auth_middleware(handler)
         if !auth.ok
             return HTTP.Response(401, "unauthorized")
         else
-            user_ret = Users.get_user(auth.payload)
-            if !user_ret.ok
-                @error "Couldnt get User for user with payload: $(auth.payload))"
+            if !auth.ok
+                @error "Couldnt get User"
                 return HTTP.Response(401, "unauthorized, could not get user")
             end
-            req.context[:user] = user_ret.user
+            req.context[:user] = auth.user
             return handler(req)
         end
     end

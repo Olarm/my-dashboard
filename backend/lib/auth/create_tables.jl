@@ -2,9 +2,9 @@
 
 function create_requests_table(conn)
     q = """
-        CREATE TABLE IF NOT EXISTS auth_requests (
+        CREATE TABLE IF NOT EXISTS auth_request_log (
             id SERIAL PRIMARY KEY,
-            timestamp timestamp with time zone NOT NULL,
+            timestamp timestamp with time zone NOT NULL default (now() at time zone 'utc'),
             http_method TEXT NOT NULL,
             request_url_path TEXT NOT NULL,
             query_parameters TEXT,
@@ -13,7 +13,7 @@ function create_requests_table(conn)
             content_type TEXT,
             content_length TEXT,
             accept_header TEXT,
-            user INT REFERENCES users(id)
+            user_id INT REFERENCES users(id)
         )
     """
     execute(conn, q)

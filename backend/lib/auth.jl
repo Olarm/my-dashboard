@@ -7,6 +7,7 @@ using ..App
 using ..Templates: wrap
 
 import ..Db
+import ..Users
 
 include("auth/create_tables.jl")
 
@@ -41,37 +42,21 @@ function verify_jwt_token(req::HTTP.Request)
             encoding = JSONWebTokens.HS256(SECRET_KEY)
             payload = JSONWebTokens.decode(encoding, token)
             if time() > (get(payload, "iat", 0) + cookie_time)
-                return (ok=false, payload=nothing)
+                return (ok=false, user=nothing)
             else
-                return (ok=true, payload=payload)
+                return Users.get_user(payload)
             end
         catch e
             @error e
-            return (ok=false, payload=nothing)
+            return (ok=false, user=nothing)
         end
     end
-    return (ok=false, payload=nothing)
+    return (ok=false, user=nothing)
 end
 
-function create_request_log_table(conn)
-    q = """
-        CREATE TABLE IF NOT EXISTS auth_request_log (
-            id SERIAL PRIMARY KEY,
-            http_method TEXT NOT NULL,
-            request_url_path TEXT NOT NULL,
-            query_parameters TEXT NOT NULL,
-            http_protocol_version TEXT NOT NULL,
-            user_agent TEXT,
-            content_type TEXT,
-            content_length TEXT,
-            accept_header TEXT
-        )
-    """
-    execute(conn, q)
-end
 
 function log_request(req::HTTP.Request, auth)
-    function truncate_string(s::String, max_len::Int)
+    function truncate_string(s, max_len::Int)
         if length(s) > max_len
             return first(s, max_len - 3) * "..." # -3 for "..."
         else
@@ -79,17 +64,17 @@ function log_request(req::HTTP.Request, auth)
         end
     end
 
-    params = [
-        req.method
-        req.target
-        HTTP.URI(req.target).query
-        string(req.version.major, ".", req.version.minor)
-        HTTP.header(req, "User-Agent", "")
-        HTTP.header(req, "Content-Type", "")
-        HTTP.header(req, "Content-Length", "")
-        HTTP.header(req, "Accept", "")
-    ]
-    params = [truncate_string(i, 256) for i in params]
+    params = Vector{Any}(undef, 0)
+    push!(params, 
+        truncate_string(req.method, 256),
+        truncate_string(req.target, 256),
+        truncate_string(HTTP.URI(req.target).query, 256),
+        truncate_string(string(req.version.major, ".", req.version.minor), 256),
+        truncate_string(HTTP.header(req, "User-Agent", ""), 256),
+        truncate_string(HTTP.header(req, "Content-Type", ""), 256),
+        truncate_string(HTTP.header(req, "Content-Length", ""), 256),
+        truncate_string(HTTP.header(req, "Accept", ""), 256)
+    )
 
     q = """
         INSERT INTO auth_request_log (
@@ -104,7 +89,26 @@ function log_request(req::HTTP.Request, auth)
         )
         VALUES (\$1,\$2,\$3,\$4,\$5,\$6,\$7,\$8)
     """
+    if auth.ok
+        push!(params, auth.user.id)
+        q = """
+            INSERT INTO auth_request_log (
+                http_method,
+                request_url_path,
+                query_parameters,
+                http_protocol_version,
+                user_agent,
+                content_type,
+                content_length,
+                accept_header,
+                user_id
+            )
+            VALUES (\$1,\$2,\$3,\$4,\$5,\$6,\$7,\$8,\$9)
+        """
+    end
+    conn = Db.get_conn()
     execute(conn, q, params)
+    close(conn)
 end
 
 function login_page(req::HTTP.Request)
@@ -142,11 +146,6 @@ function authenticate(req::HTTP.Request)
     end
 end
 
-function create_auth_tables()
-    conn = Db.get_conn()
-    create_request_log_table(conn)
-    close(conn)
-end
 
 
 end
