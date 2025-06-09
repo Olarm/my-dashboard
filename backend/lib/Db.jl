@@ -50,6 +50,7 @@ function create_foreign_meta_table()
         )
     """
     execute(conn, q)
+    close(conn)
 end
 
 function insert_foreign_meta(table_name::String, descriptors::Vector{String}, identifier="id")
@@ -62,6 +63,7 @@ function insert_foreign_meta(table_name::String, descriptors::Vector{String}, id
     """
     params = [table_name, identifier, descriptors]
     execute(conn, q, params)
+    close(conn)
 end
 
 function initialize()
@@ -70,6 +72,7 @@ function initialize()
     create_foreign_meta_table()
     #Users.create_users_table(conn)
     @info "Successfully initialized DB"
+    close(conn)
 end
 
 
@@ -217,7 +220,9 @@ end
 function get_activity()
     conn = get_conn()
     query = "SELECT * FROM activity ORDER BY date;"
-    return execute(conn, query) |> DataFrame
+    df = execute(conn, query) |> DataFrame
+    close(conn)
+    return df
 end
 
 
@@ -239,6 +244,8 @@ function get_exercises_tcx()
         ORDER BY start_time;
     """
     df = execute(conn, query) |> DataFrame
+    close(conn)
+    return df
 end
 
 
@@ -436,7 +443,8 @@ function get_averages()
     query = "SELECT AVG(heart_rate) from sleep_heart_rate;"
     sleep_hr = execute(query) |> DataFrame
 
-
+    close(conn)
+    return sleep_hr
 end
 
 
@@ -451,6 +459,7 @@ function get_sleep_hr()
         LATERAL jsonb_each_text(data->'heart_rate_samples') AS heart_rate;
     """
     result = execute(conn, query)
+    close(conn)
     timestamps = String[]
     heart_rates = Int[]
 
@@ -472,6 +481,7 @@ function get_sleep_json()
         SELECT data FROM sleep;
     """
     result = execute(conn, query)
+    close(conn)
     nights = []
     for row in result
         json_data_str = row[1]
