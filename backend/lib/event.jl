@@ -45,6 +45,7 @@ function get_event_meta(id::Int)
     conn = Db.get_conn()
     q = "SELECT * from event_meta_data WHERE id = \$1"
     df = execute(conn, q, [id]) |> DataFrame
+    close(conn)
     if size(df)[1] != 1
         return (ok=false, data=nothing)
     end
