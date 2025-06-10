@@ -22,6 +22,10 @@ function get_config()
     end
 end
 config = get_config()
+const SECRET_KEY = get(config, "secret", "your secret key")
+if SECRET_KEY == "your secret key"
+    @warn "Secret not set, DO NOT USE for production."
+end
 
 include("lib/utils.jl")
 include("lib/template.jl")

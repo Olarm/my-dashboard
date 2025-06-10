@@ -17,7 +17,6 @@ export
     verify_jwt_token
 
 
-const SECRET_KEY = "your_secret_key"  # Keep this secret
 
 function generate_jwt(name::String, sub::String)
     payload = Dict(
@@ -25,7 +24,7 @@ function generate_jwt(name::String, sub::String)
         "name" => name, 
         "iat" => time()
     )
-    encoding = JSONWebTokens.HS256(SECRET_KEY)
+    encoding = JSONWebTokens.HS256(App.SECRET_KEY)
     token = JSONWebTokens.encode(encoding, payload)
     return token
 end
@@ -39,7 +38,7 @@ function verify_jwt_token(req::HTTP.Request)
         token = split(cookie_header, "token=")[2]
         token = split(token, ";")[1]  # Remove any additional cookie attributes
         try
-            encoding = JSONWebTokens.HS256(SECRET_KEY)
+            encoding = JSONWebTokens.HS256(App.SECRET_KEY)
             payload = JSONWebTokens.decode(encoding, token)
             if time() > (get(payload, "iat", 0) + cookie_time)
                 return (ok=false, user=nothing)
