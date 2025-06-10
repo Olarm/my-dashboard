@@ -7,24 +7,78 @@ import ..Db
 import ..Argon2
 
 
-struct User
-    id::Int
+struct UserInput
     username::String
-    first_name::String
-    last_name::String
+    first_name::Union{String, Nothing}
+    last_name::Union{String, Nothing}
     email::String
     sex::String
-    admin::Bool
     password_hash::String
 end
 
-struct UserInput
+struct User
+    id::Int
     username::String
-    first_name::String
-    last_name::String
+    first_name::Union{String, Nothing}
+    last_name::Union{String, Nothing}
     email::String
     sex::String
-    password_hash::String
+    admin::Bool
+
+    function User(user_input::UserInput, id::Int)
+        User(
+            id,
+            user_input.username,
+            user_input.first_name,
+            user_input.last_name,
+            user_input.email,
+            user_input.sex,
+            false
+        )
+    end
+end
+
+
+
+"""
+    insert_user_into_db(user::User)::Union{Int, Nothing}
+
+Inserts a UserInput struct into the 'users' PostgreSQL table.
+Returns the 'id' of the newly inserted user on success, or nothing on failure.
+"""
+function insert_user_into_db(user_input::UserInput)::Union{User, Nothing}
+    try
+        conn = Db.get_conn()
+
+        q = """
+            INSERT INTO users (username, first_name, last_name, email, sex, admin, password_hash)
+            VALUES (\$1, \$2, \$3, \$4, \$5, \$6, \$7)
+            RETURNING id;
+        """
+
+        result = LibPQ.execute(conn, sql, [
+            user_input.username,
+            user_input.first_name,
+            user_input.last_name,
+            user_input.email,
+            string(user_input.sex), # Convert Char to String for the database
+            user_input.admin,
+            user_input.password_hash
+        ])
+
+        inserted_id = LibPQ.getrows(result, (:id,))[1]
+        @info "Successfully inserted user '$(user_input.username)' with ID: $inserted_id."
+        new_user = User(user_input, inserted_id)
+        return new_user
+
+    catch e
+        @error "Failed to insert user into database: $(e)"
+        return nothing
+    finally
+        if !isnothing(conn) && LibPQ.isopen(conn)
+            close(conn)
+        end
+    end
 end
 
 function create_user(data::AbstractDict)::Union{User, Nothing}
@@ -66,7 +120,7 @@ function create_user(data::AbstractDict)::Union{User, Nothing}
     end
     password_hash = Argon2.hash_password(password)
 
-    return User(
+    user_data = User(
         username_str,
         first_name_str,
         last_name_str,
@@ -74,6 +128,8 @@ function create_user(data::AbstractDict)::Union{User, Nothing}
         sex_char,
         password_hash
     )
+
+    return insert_user_into_db(user_data)
 end
 
 function create_users_table(conn)
