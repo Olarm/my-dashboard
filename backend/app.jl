@@ -27,6 +27,7 @@ if SECRET_KEY == "your secret key"
     @warn "Secret not set, DO NOT USE for production."
 end
 
+include("lib/argon2.jl")
 include("lib/utils.jl")
 include("lib/template.jl")
 include("lib/Db.jl")
