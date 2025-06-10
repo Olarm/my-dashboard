@@ -120,6 +120,24 @@ function login_page(req::HTTP.Request)
     return HTTP.Response(501)
 end
 
+function authenticate_user(user::Users.User, password::String)
+    stored_hash = user.password_hash
+    user_id = user.id
+
+    try
+        if Argon2Wrapper.verify_password(password, stored_hash)
+            @info "User '$username' authenticated successfully. User ID: $user_id"
+            return user_id
+        else
+            @warn "Authentication failed: Invalid password for user '$username'."
+            return nothing
+        end
+    catch e # Catch any actual, unexpected errors from Argon2Wrapper.verify_password
+        @error "Severe Argon2 verification error for user '$username': $(e)"
+        return nothing
+    end
+end
+
 function authenticate(req::HTTP.Request)
     data = JSON3.read(String(req.body))
     name = get(data, "name", "")
