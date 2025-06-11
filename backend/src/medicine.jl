@@ -9,7 +9,6 @@ using
 using ..Templates
 import ..FeedbackLoop
 import ..Db
-import ..Forms
 
 include("medicine/create_tables.jl")
 
@@ -21,11 +20,6 @@ function create_medicine_tables()
     create_ingredients_tables()
     create_medicine_ingredients_table()
     create_medicine_administration_log_table()
-end
-
-function get_administration_log_form(req::HTTP.Request)
-    form = Forms.create_table_form("medicine_administration_log")
-    HTTP.Response(200, FeedbackLoop.get_headers(), JSON3.write(form))
 end
 
 function get_medicine_administration_log(n, user_id)
@@ -54,6 +48,5 @@ function create_medicine_log(req::HTTP.Request)
     HTTP.Response(200)
 end
 
-HTTP.register!(FeedbackLoop.ROUTER, "GET", "/medicine/administration-log-form", get_administration_log_form)
 HTTP.register!(FeedbackLoop.ROUTER, "POST", "/medicine/log/create", create_medicine_log)
 end

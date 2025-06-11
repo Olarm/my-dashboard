@@ -6,7 +6,6 @@ export
     get_sleep_data, 
     get_sleep, 
     get_recharge,
-    get_config, 
     get_total_calories, 
     get_per_day,
     get_eat_sleep_score,
