@@ -9,7 +9,7 @@ using
     Dates,
     TimeZones
 
-import ..App
+import ..FeedbackLoop
 import ..Db
 import ..Templates
 
@@ -206,6 +206,6 @@ function post_timestamp_category_event(req::HTTP.Request)
     HTTP.Response(200)
 end
 
-HTTP.register!(App.ROUTER, "POST", "/event/timestamp_double/create", post_timestamp_double_event)
+HTTP.register!(FeedbackLoop.ROUTER, "POST", "/event/timestamp_double/create", post_timestamp_double_event)
 
 end

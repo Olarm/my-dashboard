@@ -3,7 +3,7 @@ module Auth
 using HTTP, JSON3, LibPQ, URIs, Dates
 import JSONWebTokens
 
-using ..App
+using ..FeedbackLoop
 using ..Templates: wrap
 
 import ..Db
@@ -24,7 +24,7 @@ function generate_jwt(name::String, sub::String)
         "name" => name, 
         "iat" => time()
     )
-    encoding = JSONWebTokens.HS256(App.SECRET_KEY)
+    encoding = JSONWebTokens.HS256(FeedbackLoop.SECRET_KEY)
     token = JSONWebTokens.encode(encoding, payload)
     return token
 end
@@ -38,7 +38,7 @@ function verify_jwt_token(req::HTTP.Request)
         token = split(cookie_header, "token=")[2]
         token = split(token, ";")[1]  # Remove any additional cookie attributes
         try
-            encoding = JSONWebTokens.HS256(App.SECRET_KEY)
+            encoding = JSONWebTokens.HS256(FeedbackLoop.SECRET_KEY)
             payload = JSONWebTokens.decode(encoding, token)
             if time() > (get(payload, "iat", 0) + cookie_time)
                 return (ok=false, user=nothing)
@@ -111,7 +111,7 @@ function log_request(req::HTTP.Request, auth)
 end
 
 function login_page(req::HTTP.Request)
-    html_path = joinpath(App.STATIC_DIR, "auth/login.html")
+    html_path = joinpath(FeedbackLoop.STATIC_DIR, "auth/login.html")
     wrap_return = wrap(html_path)
     if wrap_return.ok
         html_content = wrap_return.html
@@ -149,7 +149,7 @@ function authenticate(req::HTTP.Request)
         max_age_seconds = 3600 * 24 * 100 # 100 days
         token = generate_jwt(name, "$user_id")
         set_cookie_header = "token=$token; HttpOnly; Path=/; SameSite=Lax; Max-Age=$(max_age_seconds)"
-        if App.config["environment"] != "local"
+        if FeedbackLoop.config["environment"] != "local"
             set_cookie_header = "$(set_cookie_header); Secure"
         end
 

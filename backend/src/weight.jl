@@ -9,7 +9,7 @@ using
     DataFrames
 
 using ..Templates
-import ..App
+import ..FeedbackLoop
 import ..Db
 import ..Forms
 import ..Users
@@ -118,8 +118,8 @@ function post_weight(req::HTTP.Request)
     return_row = Templates.create_table_rows(return_data)
     data = Dict("insertedRow" => return_row)
 
-    return HTTP.Response(200, App.get_headers(), JSON3.write(data))
+    return HTTP.Response(200, FeedbackLoop.get_headers(), JSON3.write(data))
 end
 
-HTTP.register!(App.ROUTER, "POST", "/weight/create", post_weight)
+HTTP.register!(FeedbackLoop.ROUTER, "POST", "/weight/create", post_weight)
 end

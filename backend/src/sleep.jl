@@ -2,7 +2,7 @@ module Sleep
 
 using HTTP, JSON3, Dates, LibPQ, DataFrames, Dates
 using ..Templates
-import ..App
+import ..FeedbackLoop
 import ..Db
 
 
@@ -139,7 +139,7 @@ function upsert_sleep_data(sleep_data::SleepData)
 end
 
 function serve_sleep_dashboard(req::HTTP.Request)
-    html_path = joinpath(App.STATIC_DIR, "sleep/dashboard.html")
+    html_path = joinpath(FeedbackLoop.STATIC_DIR, "sleep/dashboard.html")
     wrap_return = wrap(html_path)
     if wrap_return.ok
         html_content = wrap_return.html
@@ -152,7 +152,7 @@ function get_sleep_list(req::HTTP.Request)
     conn = Db.get_conn()
     query = """SELECT * from sleep_data order by date desc;"""
     df = execute(conn, query) |> DataFrame
-    HTTP.Response(200, App.get_headers(), JSON3.write(df))
+    HTTP.Response(200, FeedbackLoop.get_headers(), JSON3.write(df))
 end
 
 function get_sleep_form(req::HTTP.Request)
@@ -176,7 +176,7 @@ function get_sleep_form(req::HTTP.Request)
         push!(data, row_dict)
     end
 
-    HTTP.Response(200, App.get_headers(), JSON3.write(data))
+    HTTP.Response(200, FeedbackLoop.get_headers(), JSON3.write(data))
 end
 
 function get_sleep_data(n, user_id)
@@ -215,18 +215,18 @@ function post_sleep_data(req::HTTP.Request)
     return_row = Templates.create_table_rows(return_data)
     data = Dict("insertedRow" => return_row)
     
-    return HTTP.Response(200, App.get_headers(), JSON3.write(data))
+    return HTTP.Response(200, FeedbackLoop.get_headers(), JSON3.write(data))
 end
 
 function get_missing_sleep_dates(req::HTTP.Request)
     conn = Db.get_conn()
     query = """SELECT * from sleep_data order by date desc;"""
     df = execute(conn, query) |> DataFrame
-    HTTP.Response(200, App.get_headers(), JSON3.write(df))
+    HTTP.Response(200, FeedbackLoop.get_headers(), JSON3.write(df))
 end
 
 function serve_sleep_form(req::HTTP.Request)
-    html_path = joinpath(App.STATIC_DIR, "sleep/sleep_form.html")
+    html_path = joinpath(FeedbackLoop.STATIC_DIR, "sleep/sleep_form.html")
     wrap_return = wrap(html_path)
     if wrap_return.ok
         html_content = wrap_return.html
@@ -236,11 +236,11 @@ function serve_sleep_form(req::HTTP.Request)
 end
 
 
-HTTP.register!(App.ROUTER, "GET", "/sleep/dashboard", serve_sleep_dashboard)
-HTTP.register!(App.ROUTER, "GET", "/sleep/list", get_sleep_list)
-HTTP.register!(App.ROUTER, "POST", "/sleep/create", post_sleep_data)
-HTTP.register!(App.ROUTER, "GET", "/sleep/form-data", get_sleep_form)
-HTTP.register!(App.ROUTER, "GET", "/sleep/form", serve_sleep_form)
+HTTP.register!(FeedbackLoop.ROUTER, "GET", "/sleep/dashboard", serve_sleep_dashboard)
+HTTP.register!(FeedbackLoop.ROUTER, "GET", "/sleep/list", get_sleep_list)
+HTTP.register!(FeedbackLoop.ROUTER, "POST", "/sleep/create", post_sleep_data)
+HTTP.register!(FeedbackLoop.ROUTER, "GET", "/sleep/form-data", get_sleep_form)
+HTTP.register!(FeedbackLoop.ROUTER, "GET", "/sleep/form", serve_sleep_form)
 @info "sleep added to router"
 
 end

@@ -7,7 +7,7 @@ using
     LibPQ,
     DataFrames
 using ..Templates
-import ..App
+import ..FeedbackLoop
 import ..Db
 import ..Forms
 
@@ -25,7 +25,7 @@ end
 
 function get_administration_log_form(req::HTTP.Request)
     form = Forms.create_table_form("medicine_administration_log")
-    HTTP.Response(200, App.get_headers(), JSON3.write(form))
+    HTTP.Response(200, FeedbackLoop.get_headers(), JSON3.write(form))
 end
 
 function get_medicine_administration_log(n, user_id)
@@ -54,6 +54,6 @@ function create_medicine_log(req::HTTP.Request)
     HTTP.Response(200)
 end
 
-HTTP.register!(App.ROUTER, "GET", "/medicine/administration-log-form", get_administration_log_form)
-HTTP.register!(App.ROUTER, "POST", "/medicine/log/create", create_medicine_log)
+HTTP.register!(FeedbackLoop.ROUTER, "GET", "/medicine/administration-log-form", get_administration_log_form)
+HTTP.register!(FeedbackLoop.ROUTER, "POST", "/medicine/log/create", create_medicine_log)
 end

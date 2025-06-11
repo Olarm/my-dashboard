@@ -2,7 +2,7 @@ module NasalSprays
 
 using HTTP, JSON3, Dates, LibPQ
 using ..Templates
-import ..App
+import ..FeedbackLoop
 import ..Db
 
 

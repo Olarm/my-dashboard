@@ -7,7 +7,7 @@ using DataFrames
 include("template/tables.jl")
 include("template/forms.jl")
 
-using ..App: STATIC_DIR
+using ..FeedbackLoop: STATIC_DIR
 
 
 function render_template(base_html::String, content_html::String, section_name="content")

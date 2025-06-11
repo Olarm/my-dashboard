@@ -27,20 +27,20 @@ if SECRET_KEY == "your secret key"
     @warn "Secret not set, DO NOT USE for production."
 end
 
-include("lib/argon2.jl")
-include("lib/utils.jl")
-include("lib/template.jl")
-include("lib/Db.jl")
-include("lib/units.jl")
-include("lib/nasalspray.jl")
-include("lib/nutrition.jl")
+include("argon2.jl")
+include("utils.jl")
+include("template.jl")
+include("Db.jl")
+include("units.jl")
+include("nasalspray.jl")
+include("nutrition.jl")
 
 #using Main.SleepAnalysis
 using .Db
 using .Nutrition
 #using Main.StatisticAnalysis
 
-include("lib/users.jl")
+include("users.jl")
 
 Units.create_unit_table()
 NasalSprays.create_tables()
@@ -209,7 +209,7 @@ function my_middleware(handler)
     end
 end
 
-include("lib/auth.jl")
+include("auth.jl")
 import .Auth
 
 initialize()
@@ -233,11 +233,11 @@ HTTP.register!(ROUTER, "POST", "/test/form/submit", test_form_submit)
 HTTP.register!(ROUTER, "GET", "/login", Auth.login_page)
 HTTP.register!(ROUTER, "POST", "/authenticate", Auth.authenticate)
 
-include("lib/sleep.jl")
-include("lib/medicine.jl")
-include("lib/weight.jl")
-include("lib/bss.jl")
-include("lib/forms.jl")
+include("sleep.jl")
+include("medicine.jl")
+include("weight.jl")
+include("bss.jl")
+include("forms.jl")
 Auth.create_auth_tables()
 Medicines.create_medicine_tables()
 Weights.create_weight_tables()

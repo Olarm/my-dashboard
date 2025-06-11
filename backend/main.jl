@@ -28,8 +28,8 @@ end
 function run_service()
     log_message(:info, "Loading app.jl and starting HTTP server...")
     try
-        include("app.jl")
-        log_message(:info, "HTTP server started on $(App.host):$(App.port)")
+        include("src/FeedbackLoop.jl")
+        log_message(:info, "HTTP server started on $(FeedbackLoop.host):$(FeedbackLoop.port)")
     catch e
         log_message(:error, "Failed to load or start app.jl: $e")
         isfile(PID_FILE) && read(PID_FILE, String) == string(current_pid) && rm(PID_FILE)
@@ -52,12 +52,12 @@ function run_service()
     catch e
         if isa(e, InterruptException)
             log_message(:info, "SIGTERM received (InterruptException). Attempting graceful shutdown.")
-            if isdefined(App, :server) && isa(App.server, Sockets.TCPServer)
-                log_message(:info, "Closing HTTP server via App.server...")
-                close(App.server)
+            if isdefined(App, :server) && isa(FeedbackLoop.server, Sockets.TCPServer)
+                log_message(:info, "Closing HTTP server via FeedbackLoop.server...")
+                close(FeedbackLoop.server)
                 log_message(:info, "HTTP server closed.")
             else
-                log_message(:warn, "Could not find `App.server` or it's not a TCPServer for graceful closure.")
+                log_message(:warn, "Could not find `FeedbackLoop.server` or it's not a TCPServer for graceful closure.")
             end
         else
             log_message(:error, "Caught unexpected error during shutdown wait: $e")

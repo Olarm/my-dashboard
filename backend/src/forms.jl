@@ -8,7 +8,7 @@ using
     DataFrames,
     Tables
 import ..Templates
-import ..App
+import ..FeedbackLoop
 import ..Db
 import ..Weights
 import ..Sleep
@@ -160,7 +160,7 @@ end
 
 function serve_forms(req)
     user = req.context[:user]
-    html_path = joinpath(App.STATIC_DIR, "forms2.html")
+    html_path = joinpath(FeedbackLoop.STATIC_DIR, "forms2.html")
     wrap_return = Templates.wrap(html_path)
     if wrap_return.ok
         html_content = wrap_return.html
@@ -173,6 +173,6 @@ function serve_forms(req)
     return HTTP.Response(501)
 end
 
-HTTP.register!(App.ROUTER, "GET", "/forms", serve_forms)
+HTTP.register!(FeedbackLoop.ROUTER, "GET", "/forms", serve_forms)
 
 end
