@@ -17,8 +17,6 @@ export
 
 using LibPQ, DataFrames, JSON3, TOML, Dates, Tables
 
-import .Users
-
 include("exercises.jl")
 
 
@@ -70,7 +68,6 @@ function initialize()
     @info "Initializing DB"
     conn = get_conn()
     create_foreign_meta_table()
-    #Users.create_users_table(conn)
     @info "Successfully initialized DB"
     close(conn)
 end
