@@ -83,9 +83,7 @@ function auth_middleware(handler)
         "/favicon.ico"
     )
 
-    @info "auth middleware"
     return function(req)
-        @info req.target
         if req.target in allowed
             return handler(req)
         end
@@ -95,7 +93,6 @@ function auth_middleware(handler)
             return HTTP.Response(401, "unauthorized")
         else
             if !auth.ok
-                @error "Couldnt get User"
                 return HTTP.Response(401, "unauthorized, could not get user")
             end
             req.context[:user] = auth.user

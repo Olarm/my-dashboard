@@ -8,6 +8,7 @@ using ..Templates: wrap
 
 import ..Db
 import ..Users
+import ..Argon2
 
 include("auth/create_tables.jl")
 
@@ -120,46 +121,49 @@ function login_page(req::HTTP.Request)
     return HTTP.Response(501)
 end
 
-function authenticate_user(user::Users.User, password::String)
+function authenticate_user(user::Users.UserAuth, password::String)
     stored_hash = user.password_hash
     user_id = user.id
 
     try
-        if Argon2Wrapper.verify_password(password, stored_hash)
-            @info "User '$username' authenticated successfully. User ID: $user_id"
-            return user_id
+        if Argon2.verify_password(password, stored_hash)
+            return true
         else
-            @warn "Authentication failed: Invalid password for user '$username'."
-            return nothing
+            @warn "Authentication failed: Invalid password for user '$(user.username)'."
+            return false
         end
     catch e # Catch any actual, unexpected errors from Argon2Wrapper.verify_password
-        @error "Severe Argon2 verification error for user '$username': $(e)"
-        return nothing
+        @error "Severe Argon2 verification error for user '$(user.username)': $(e)"
+        return false
     end
 end
 
 function authenticate(req::HTTP.Request)
     data = JSON3.read(String(req.body))
-    name = get(data, "name", "")
+    username = get(data, "name", "")
     password = get(data, "password", "")
     redirect_url = "/forms"
+    user_auth_r = Users.get_user_auth(username, password)
+    if user_auth_r.ok
+        user_auth = user_auth_r.user
+        if authenticate_user(user_auth, password)
+            max_age_seconds = 3600 * 24 * 100 # 100 days
+            token = generate_jwt(username, "$(user_auth.id)")
+            set_cookie_header = "token=$token; HttpOnly; Path=/; SameSite=Lax; Max-Age=$(max_age_seconds)"
+            if FeedbackLoop.config["environment"] != "local"
+                set_cookie_header = "$(set_cookie_header); Secure"
+            end
 
-    if name == "admin" && password == "secret"
-        user_id = 1
-        max_age_seconds = 3600 * 24 * 100 # 100 days
-        token = generate_jwt(name, "$user_id")
-        set_cookie_header = "token=$token; HttpOnly; Path=/; SameSite=Lax; Max-Age=$(max_age_seconds)"
-        if FeedbackLoop.config["environment"] != "local"
-            set_cookie_header = "$(set_cookie_header); Secure"
+            content = [
+                "Location" => redirect_url, 
+                "Set-Cookie" => set_cookie_header
+            ]
+            return HTTP.Response(302, content)
+        else
+            return HTTP.Response(401, JSON3.write(Dict("error" => "Invalid credentials")))
         end
-
-        content = [
-            "Location" => redirect_url, 
-            "Set-Cookie" => set_cookie_header
-        ]
-        return HTTP.Response(302, content)
     else
-        return HTTP.Response(401, JSON3.write(Dict("error" => "Invalid credentials")))
+        return HTTP.Response(401, JSON3.write(Dict("error" => "No registered user with that username")))
     end
 end
 

@@ -25,8 +25,32 @@ struct User
     sex::String
     admin::Bool
 
+    function User(user_row)
+        new(user_row...)
+    end
+
+    function User(
+            id,
+            username,
+            first_name,
+            last_name,
+            email,
+            sex,
+            admin
+        )
+        new(
+            id,
+            username,
+            first_name,
+            last_name,
+            email,
+            sex,
+            admin
+        )
+    end
+
     function User(user_input::UserInput, id::Int)
-        User(
+        new(
             id,
             user_input.username,
             user_input.first_name,
@@ -38,6 +62,19 @@ struct User
     end
 end
 
+struct UserAuth
+    id::Int
+    username::String
+    password_hash::String
+
+    function UserAuth(id, username, password_hash)
+        new(
+            id,
+            username, 
+            password_hash
+        )
+    end
+end
 
 
 """
@@ -149,17 +186,39 @@ function create_users_table(conn)
     execute(conn, q)
 end
 
+function get_user_auth(username, password)
+    conn = Db.get_conn()
+    q = """SELECT 
+            id, 
+            username, 
+            password_hash
+        FROM users WHERE username = \$1
+    """
+    result = execute(conn, q, [username])
+    close(conn)
+
+    if isempty(result)
+        @error "Couldnt find user with $username in db"
+        return (ok=false, user=nothing)
+    end
+    
+    user_row = nothing
+    for row in result
+        user_row = [i for i in row]
+        user_row[3] = replace(row[3], "\\\$" => "\$")
+    end
+
+    return (ok=true, user=UserAuth(user_row...))
+end
+
 function get_user(jwt_payload)
-    @info jwt_payload
     id_str = get(jwt_payload, "sub", "")
     if id_str == ""
-        @error "Got empty id_str"
         return (ok=false, user=nothing)
     end
 
     id = tryparse(Int, id_str)
     if id == nothing
-        @error "Cant parse id_str to Int"
         return (ok=false, user=nothing)
     end
 
@@ -175,9 +234,9 @@ function get_user(jwt_payload)
         FROM users WHERE id = \$1
     """
     result = execute(conn, q, [id])
+    close(conn)
 
     if isempty(result)
-        @error "Couldnt find user with $id in db"
         return (ok=false, user=nothing)
     end
     
@@ -185,8 +244,10 @@ function get_user(jwt_payload)
     for row in result
         user_row = [i for i in row]
     end
+    
+    user = User(user_row...)
 
-    return (ok=true, user=User(user_row...))
+    return (ok=true, user=user)
 end
 
 end
