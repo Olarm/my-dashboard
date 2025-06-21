@@ -74,7 +74,7 @@ function get_bss(n, user_id)
             timestamp,
             timestamp_timezone,
             score,
-            secondary_score
+            secondary_score secondary
         FROM bss
         WHERE user_id = \$1
         ORDER BY timestamp DESC
