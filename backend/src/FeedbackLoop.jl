@@ -226,6 +226,7 @@ HTTP.register!(ROUTER, "GET", "/tcx", get_tcx_list)
 HTTP.register!(ROUTER, "GET", "/food_table", get_food_table)
 HTTP.register!(ROUTER, "GET", "/food_list", get_daily_food)
 HTTP.register!(ROUTER, "GET", "/static/*", serve_static_file)
+HTTP.register!(ROUTER, "GET", "/static/fonts/*", serve_static_file) # Necessary for some reason...
 HTTP.register!(ROUTER, "POST", "/test/form/submit", test_form_submit)
 
 # Auth
