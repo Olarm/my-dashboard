@@ -95,6 +95,8 @@ function addRowAtStart(tableId, rowHtmlString) {
     const action = form.getAttribute('data-action');
     const url = form.getAttribute('data-url');
 
+    form.reset();
+
     // Call the appropriate function based on the action
     if (action === 'processForm') {
       await processForm(tableId, data, url);
