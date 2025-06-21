@@ -179,7 +179,7 @@ function get_sleep_form(req::HTTP.Request)
     HTTP.Response(200, FeedbackLoop.get_headers(), JSON3.write(data))
 end
 
-function get_sleep_data(n, user_id)
+function get_sleep_data(n, user_id, display_names=true)
     conn = Db.get_conn()
     q = """
         SELECT 
@@ -187,13 +187,28 @@ function get_sleep_data(n, user_id)
             location, 
             room, 
             twin_bed, 
-            mouth_tape, 
+            sleep_solo, 
             nose_magnet,
             nose_magnet_off
         FROM sleep_data
         ORDER BY date DESC
         LIMIT \$1;
     """
+    if display_names
+        q = """
+            SELECT 
+                date, 
+                location, 
+                room, 
+                twin_bed "twin bed", 
+                sleep_solo "sleep solo", 
+                nose_magnet "nose magnet",
+                nose_magnet_off "nose magnet off"
+            FROM sleep_data
+            ORDER BY date DESC
+            LIMIT \$1;
+        """
+    end
     df = execute(conn, q, [n]) |> DataFrame
     close(conn)
     dropmissing!(df)
