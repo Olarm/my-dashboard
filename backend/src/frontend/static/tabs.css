@@ -13,7 +13,6 @@ input[type="radio"] {
 .tab-label {
     padding: 10px 20px;
     background-color: var(--c2);
-    margin-right: 2px;
     cursor: pointer;
 }
 
@@ -27,8 +26,8 @@ input[type="radio"]:checked + label {
 .tab-content {
     display: none;
     padding: 20px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
+    border-radius: 0px;
+    border: 1px solid var(--c2);
 }
 
 /* Show the content of the checked tab */
@@ -42,4 +41,10 @@ input[type="radio"]:checked + label {
 #medicine_log_radio:checked ~ #medicine_log_form,
 #weight_radio:checked ~ #weight_form {
     display: block;
+}
+
+@media (max-width: 768px) { /* You can adjust this breakpoint as needed */
+    .tab-content {
+        border: 0px solid var(--c2);
+    }
 }

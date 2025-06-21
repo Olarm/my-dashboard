@@ -28,7 +28,7 @@
 
 body {
   background-color: var(--c1);
-  color: #EEEEEE;
+  color: var(--c4);
   font-family: 'Roboto Mono', 'Courier New', monospace; 
   padding: 20px;
 }
@@ -114,4 +114,10 @@ body {
 #caloriesPlot {
     width: 100%;
     height: 100%;
+}
+
+@media (max-width: 768px) { /* You can adjust this breakpoint as needed */
+  body {
+    padding: 0; /* Remove padding for screens up to 768px wide */
+  }
 }
