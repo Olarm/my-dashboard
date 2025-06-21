@@ -9,3 +9,7 @@ th, td {
     border: 1px solid black;
     padding: 5px;
 }
+
+.highlighted-row {
+  border: 2px solid var(--c3); 
+}

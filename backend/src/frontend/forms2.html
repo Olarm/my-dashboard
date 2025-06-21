@@ -57,12 +57,13 @@ function addRowAtStart(tableId, rowHtmlString) {
     return;
   }
 
+  newTrElement.classList.add('highlighted-row');
+
   if (tableBody.firstChild) {
     tableBody.insertBefore(newTrElement, tableBody.firstChild);
   } else {
     tableBody.appendChild(newTrElement);
   }
-
 }
 
   async function handleFormSubmission(event) {
